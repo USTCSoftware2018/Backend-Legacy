@@ -31,7 +31,17 @@ def make_view(serializer_cls):
         if serializer.is_valid(raise_exception=True):
             user = serializer.save()
             auth_login(request, user)
-            return Response(UserSerializer(user).data)
+            user_data = UserSerializer(user).data
+            ret = {
+               'meta': {
+                    'success': True,
+                    'message': 'Ok!',
+                },
+               'data': [
+                   user_data,
+               ]
+            }
+            return Response(ret)
 
     return handler
 
