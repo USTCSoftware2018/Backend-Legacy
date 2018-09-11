@@ -102,6 +102,8 @@ def prepare_table(args):
             print('Reinstalling stored procedure...')
             return_code = os.system(' '.join([
                 'mysql',
+                '-h{}'.format(args.host),
+                '-P{}'.format(args.port),
                 '-u{}'.format(args.user),
                 '-p{}'.format(args.password) if args.password else '',
                 '<',
