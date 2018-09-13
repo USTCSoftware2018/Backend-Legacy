@@ -144,13 +144,13 @@ class UserViewSet(
     def follow(self, request, *args, **kwargs):
         request.user.follow(self.get_object())
 
-        return Response('OK')
+        return success()
 
     @decorators.detail_route(['POST'])
     def unfollow(self, request, *args, **kwargs):
         request.user.unfollow(self.get_object())
 
-        return Response('OK')
+        return success()
 
     @decorators.detail_route(['GET'])
     def stat(self, request, *args, **kwargs):
@@ -164,7 +164,7 @@ class UserViewSet(
             'experience_count': Experience.objects.filter(author=user).count()
         }
 
-        return Response(result)
+        return success(result)
 
 
 class UserRelationViewSet(mixins.ListModelMixin, BaseUserViewSetMixin):
