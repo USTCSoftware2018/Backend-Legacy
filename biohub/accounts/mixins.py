@@ -6,6 +6,7 @@ from rest_framework.exceptions import NotFound
 
 from .serializers import UserSerializer
 from .models import User
+from biohub.utils.response import success
 
 
 class UserPaginationMixin(object):
@@ -17,14 +18,14 @@ class UserPaginationMixin(object):
             return self.get_paginated_response(serializer.data)
 
         serializer = UserSerializer(page, many=True)
-        return Response(serializer.data)
+        return success(serializer.data)
 
 
 re_user_lookup_value = r'\d+|me|n:[\da-zA-Z_]{4,15}'
 
 
 class BaseUserViewSetMixin(viewsets.GenericViewSet):
-
+    #
     user_lookup_value_regex = re_user_lookup_value
 
     def get_user_queryset(self):
