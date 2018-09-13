@@ -24,7 +24,7 @@ def make_view(serializer_cls):
     @decorators.api_view(['POST'])
     def handler(request):
         if request.user.is_authenticated():
-            return Response(failed('Already login.'))
+            return failed('Already login.')
 
         serializer = serializer_cls(data=request.data, context={'request': request})
 
