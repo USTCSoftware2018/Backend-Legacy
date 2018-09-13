@@ -17,25 +17,21 @@ from .serializers import UserSerializer, RegisterSerializer, LoginSerializer,\
     ChangePasswordSerializer, PasswordResetRequestSerializer, PasswordResetPerformSerializer
 from .models import User
 from .mixins import BaseUserViewSetMixin, re_user_lookup_value
-from biohub.utils.response import success, failed
+
 
 def make_view(serializer_cls):
 
     @decorators.api_view(['POST'])
     def handler(request):
         if request.user.is_authenticated():
-            return failed('Already login.')
+            raise NotFound
 
         serializer = serializer_cls(data=request.data, context={'request': request})
 
-        try:
-            if serializer.is_valid(raise_exception=True):
-                user = serializer.save()
-                auth_login(request, user)
-                user_data = UserSerializer(user).data
-                return success(user_data)
-        except Exception as e:
-            return failed(e.__dict__.get("detail"))
+        if serializer.is_valid(raise_exception=True):
+            user = serializer.save()
+            auth_login(request, user)
+            return Response(UserSerializer(user).data)
 
     return handler
 
@@ -144,13 +140,13 @@ class UserViewSet(
     def follow(self, request, *args, **kwargs):
         request.user.follow(self.get_object())
 
-        return success()
+        return Response('OK')
 
     @decorators.detail_route(['POST'])
     def unfollow(self, request, *args, **kwargs):
         request.user.unfollow(self.get_object())
 
-        return success()
+        return Response('OK')
 
     @decorators.detail_route(['GET'])
     def stat(self, request, *args, **kwargs):
@@ -164,7 +160,7 @@ class UserViewSet(
             'experience_count': Experience.objects.filter(author=user).count()
         }
 
-        return success(result)
+        return Response(result)
 
 
 class UserRelationViewSet(mixins.ListModelMixin, BaseUserViewSetMixin):
