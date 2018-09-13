@@ -56,6 +56,16 @@ class User(AbstractBaseUser):
         error_messages={
             'unique': ('A user with that username already exists.'),
         })
+    actualname = models.CharField(
+        'actualname',
+        max_length=200,
+        blank=True,
+        validators=[MaxLengthValidator(200)])
+    organization = models.CharField(
+        'organization',
+        max_length=200,
+        blank=True,
+        validators=[MaxLengthValidator(200)])
     email = models.EmailField('email address', unique=True)
     avatar_url = models.URLField('avatar url', blank=True)
     address = models.CharField(
