@@ -35,9 +35,31 @@ def make_view(serializer_cls):
 
     return handler
 
+def make_login_view(serializer_cls):
+
+    @decorators.api_view(['POST'])
+    def handler(request):
+        if request.user.is_authenticated():
+            raise AlreadyLogin
+
+        serializer = serializer_cls(data=request.data, context={'request': request})
+
+        if serializer.is_valid(raise_exception=True):
+            user = serializer.save()
+            auth_login(request, user)
+            data = UserSerializer(user).data
+            data["stat"] = {
+                'follower_count': user.followers.count(),
+                'following_count': User.followers.through.objects.filter(to_user_id=user.id).count(),
+                'star_count': StarredUser.objects.filter(user=user).count(),
+                'experience_count': Experience.objects.filter(author=user).count()
+            }
+            return Response(data)
+
+    return handler
 
 register = make_view(RegisterSerializer)
-login = make_view(LoginSerializer)
+login = make_login_view(LoginSerializer)
 
 
 @decorators.api_view(['GET'])
