@@ -69,7 +69,7 @@ class User(AbstractBaseUser):
     email = models.EmailField('email address', unique=True)
     avatar_url = models.URLField('avatar url', blank=True)
     location = models.CharField(
-        'address',
+        'location',
         max_length=200,
         blank=True,
         validators=[MaxLengthValidator(200)])
