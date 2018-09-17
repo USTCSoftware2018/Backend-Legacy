@@ -17,14 +17,14 @@ from .serializers import UserSerializer, RegisterSerializer, LoginSerializer,\
     ChangePasswordSerializer, PasswordResetRequestSerializer, PasswordResetPerformSerializer
 from .models import User
 from .mixins import BaseUserViewSetMixin, re_user_lookup_value
-
+from .exceptions import AlreadyLogin
 
 def make_view(serializer_cls):
 
     @decorators.api_view(['POST'])
     def handler(request):
         if request.user.is_authenticated():
-            raise NotFound
+            raise AlreadyLogin
 
         serializer = serializer_cls(data=request.data, context={'request': request})
 
