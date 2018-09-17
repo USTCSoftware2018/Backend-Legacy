@@ -68,7 +68,7 @@ class User(AbstractBaseUser):
         validators=[MaxLengthValidator(200)])
     email = models.EmailField('email address', unique=True)
     avatar_url = models.URLField('avatar url', blank=True)
-    address = models.CharField(
+    location = models.CharField(
         'address',
         max_length=200,
         blank=True,
