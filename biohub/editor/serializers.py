@@ -20,8 +20,6 @@ class CreatableSlugRelatedField(serializers.SlugRelatedField):
 
 
 class ReportSerializer(serializers.ModelSerializer):
-    authors = serializers.SlugRelatedField(allow_empty=False, many=True, slug_field='username',
-                                           queryset=User.objects.all())
     label = CreatableSlugRelatedField(allow_empty=True, many=True, slug_field='label_name',
                                       queryset=Label.objects.all())
 

@@ -1,11 +1,12 @@
 from django.db import models
 from django.conf import settings
+from biohub.accounts.models import User
 
 
 class Report(models.Model):
 
     title = models.CharField(max_length=256)
-    # authors <-- user.User.reports
+    authors = models.ManyToManyField(User)
     introduction = models.TextField()
     label = models.ManyToManyField('Label', related_name='reports_related')
     ntime = models.DateTimeField(auto_now_add=True)
