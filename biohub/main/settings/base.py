@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'channels',
     'biohub.core',
     'biohub.accounts',
+    'biohub.editor',
     'biohub.notices',
     'biohub.core.files',
     'biohub.core.plugins',
