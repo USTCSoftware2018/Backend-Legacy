@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'channels',
     'biohub.core',
     'biohub.accounts',
+    'biohub.editor',
     'biohub.notices',
     'biohub.core.files',
     'biohub.core.plugins',
@@ -149,7 +150,7 @@ CHANNEL_LAYERS = {
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
-CORS_ORIGIN_ALLOW_ALL = False
+CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 
 # Extra configurations
