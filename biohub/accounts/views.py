@@ -152,7 +152,7 @@ class UserViewSet(
                 )
             else:
                 qs = qs.annotate(
-                    followed=False
+                    followed=models.Value(False)
                 )
 
         return qs
