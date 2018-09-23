@@ -176,16 +176,15 @@ class UserViewSet(
     def stat(self, request, *args, **kwargs):
 
         user = self.get_object()
-
-        result = {
-            'user': UserSerializer(user).data,
+        data = UserSerializer(user).data
+        data["stat"] = {
             'follower_count': user.followers.count(),
             'following_count': User.followers.through.objects.filter(to_user_id=user.id).count(),
             'star_count': StarredUser.objects.filter(user=user).count(),
             'experience_count': Experience.objects.filter(author=user).count()
         }
 
-        return Response(result)
+        return Response(data)
 
 
 class UserRelationViewSet(mixins.ListModelMixin, BaseUserViewSetMixin):
