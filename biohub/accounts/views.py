@@ -180,6 +180,7 @@ class UserViewSet(
         user = self.get_object()
 
         result = {
+            'user': user,
             'follower_count': user.followers.count(),
             'following_count': User.followers.through.objects.filter(to_user_id=user.id).count(),
             'star_count': StarredUser.objects.filter(user=user).count(),
