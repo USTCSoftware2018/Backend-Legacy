@@ -134,26 +134,24 @@ class UserViewSet(
 
         qs = super(UserViewSet, self).get_user_queryset()
 
-        if self.action == 'retrieve':
-
-            if self.request.user.is_authenticated():
-                qs = qs.annotate(
-                    followed=models.ExpressionWrapper(
-                        models.Count(
-                            models.Subquery(
-                                User.following.through.objects.filter(
-                                    to_user_id=self.request.user.id,
-                                    from_user_id=models.OuterRef('id')
-                                ).values('id')
-                            )
-                        ),
-                        output_field=models.BooleanField()
-                    )
+        if self.request.user.is_authenticated():
+            qs = qs.annotate(
+                followed=models.ExpressionWrapper(
+                    models.Count(
+                        models.Subquery(
+                            User.following.through.objects.filter(
+                                to_user_id=self.request.user.id,
+                                from_user_id=models.OuterRef('id')
+                            ).values('id')
+                        )
+                    ),
+                    output_field=models.BooleanField()
                 )
-            else:
-                qs = qs.annotate(
-                    followed=models.Value(False, output_field=models.BooleanField())
-                )
+            )
+        else:
+            qs = qs.annotate(
+                followed=models.Value(False, output_field=models.BooleanField())
+            )
 
         return qs
 
