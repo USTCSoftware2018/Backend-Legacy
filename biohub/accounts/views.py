@@ -150,6 +150,10 @@ class UserViewSet(
                         output_field=models.BooleanField()
                     )
                 )
+            else:
+                qs = qs.annotate(
+                    followed=False
+                )
 
         return qs
 
