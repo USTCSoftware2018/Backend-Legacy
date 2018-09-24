@@ -220,10 +220,22 @@ class UserRelationViewSet(mixins.ListModelMixin, BaseUserViewSetMixin):
                     output_field=models.BooleanField()
                 )
             )
+        else:
+            rel_field = rel_field.annotate(
+                followed=models.Value(False, output_field=models.BooleanField())
+            )
 
         return rel_field.order_by('id')
 
-    for view_name in allowed_actions:
-        locals()[view_name] = decorators.list_route(methods=['GET'])(
-            lambda self, *args, **kwargs: self.list(*args, **kwargs)
-        )
+    # for view_name in allowed_actions:
+    #     locals()[view_name] = decorators.list_route(methods=['GET'])(
+    #         lambda self, *args, **kwargs: self.list(*args, **kwargs)
+    #     )
+
+    @decorators.list_route(methods=['GET'])
+    def followers(self, *args, **kwargs):
+        return self.list(*args, **kwargs)
+
+    @decorators.list_route(methods=['GET'])
+    def following(self, *args, **kwargs):
+        return self.list(*args, **kwargs)
