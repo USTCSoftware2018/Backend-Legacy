@@ -10,9 +10,6 @@ from django.core.files.storage import default_storage
 from biohub.accounts.validators import UsernameValidator
 from biohub.core.files.utils import url_to_filename
 
-from biohub.biobrick.models import StarredUser
-from biohub.forum.models import Experience
-
 AVATAR_URL_BASE = 'https://www.gravatar.com/avatar/{md5}?s=328&r=g&d=identicon'
 
 
@@ -156,6 +153,8 @@ class User(AbstractBaseUser):
         return 'user', self.username
 
     def get_stat(self):
+        from biohub.biobrick.models import StarredUser
+        from biohub.forum.models import Experience
         return {
             'follower_count': self.followers.count(),
             'following_count': User.followers.through.objects.filter(to_user_id=self.id).count(),
