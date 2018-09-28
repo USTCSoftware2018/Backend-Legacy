@@ -48,12 +48,6 @@ def make_login_view(serializer_cls):
             user = serializer.save()
             auth_login(request, user)
             data = UserSerializer(user).data
-            data["stat"] = {
-                'follower_count': user.followers.count(),
-                'following_count': User.followers.through.objects.filter(to_user_id=user.id).count(),
-                'star_count': StarredUser.objects.filter(user=user).count(),
-                'experience_count': Experience.objects.filter(author=user).count()
-            }
             return Response(data)
 
     return handler
@@ -177,13 +171,6 @@ class UserViewSet(
 
         user = self.get_object()
         data = UserSerializer(user).data
-        data["stat"] = {
-            'follower_count': user.followers.count(),
-            'following_count': User.followers.through.objects.filter(to_user_id=user.id).count(),
-            'star_count': StarredUser.objects.filter(user=user).count(),
-            'experience_count': Experience.objects.filter(author=user).count()
-        }
-
         return Response(data)
 
 
