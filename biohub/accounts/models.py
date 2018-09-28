@@ -151,3 +151,8 @@ class User(AbstractBaseUser):
 
     def get_router_arguments(self):
         return 'user', self.username
+
+    def get_stat(self):
+        return {
+            'username': self.username
+        }
