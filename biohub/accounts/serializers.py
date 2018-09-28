@@ -20,6 +20,7 @@ from .models import User
 class UserSerializer(ModelSerializer):
 
     followed = serializers.BooleanField(required=False, read_only=True)
+    stat = serializers.JSONField(source='get_stat', required=False, read_only=True)
 
     class Meta:
         model = User
