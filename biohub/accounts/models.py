@@ -161,8 +161,3 @@ class User(AbstractBaseUser):
             'star_count': StarredUser.objects.filter(user=self).count(),
             'experience_count': Experience.objects.filter(author=self).count()
         }
-
-    @property
-    def labels(self):
-        from biohub.editor.models import Label
-        return [l.label_name for l in Label.objects.filter(users=self.pk)]

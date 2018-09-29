@@ -63,7 +63,10 @@ class LabelViewSet(viewsets.ViewSet):
         except User.DoesNotExist:
             raise Http404()
 
-        return Response(user.labels)
+        labels = []
+        for report in Report.objects.filter(authors=user):
+            labels += report.label.all()
+        return Response(l.label_name for l in labels)
 
 
 @require_http_methods(['POST', 'GET', 'DELETE'])
