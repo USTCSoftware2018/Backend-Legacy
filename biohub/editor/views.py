@@ -63,9 +63,7 @@ class LabelViewSet(viewsets.ViewSet):
         except User.DoesNotExist:
             raise Http404()
 
-        labels = []
-        for report in Report.objects.filter(authors=user):
-            labels += report.label.all()
+        labels = Label.objects.filter(reports_related__authors=user)
         return Response(l.label_name for l in labels)
 
 
