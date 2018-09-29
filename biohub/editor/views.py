@@ -5,7 +5,8 @@ from django.views.decorators.http import require_http_methods
 from django.conf import settings
 import json
 from django.utils import timezone
-from rest_framework.viewsets import ModelViewSet
+from rest_framework import mixins, viewsets, decorators
+from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from biohub.accounts.models import User
 from .models import Graph, SubRoutine, Step, Report, Label
@@ -14,7 +15,7 @@ from .serializers import StepSerializer, SubRoutineSerializer, ReportSerializer
 from .permissions import IsOwnerOrReadOnly, IsAuthorOrReadyOnly
 
 
-class StepViewSet(ModelViewSet):
+class StepViewSet(viewsets.ModelViewSet):
     queryset = Step.objects.all()
     serializer_class = StepSerializer
     permission_classes = (IsAuthenticated, IsOwnerOrReadOnly)
@@ -24,7 +25,7 @@ class StepViewSet(ModelViewSet):
         return Step.objects.filter(user=user)
 
 
-class SubRoutineViewSet(ModelViewSet):
+class SubRoutineViewSet(viewsets.ModelViewSet):
     queryset = SubRoutine.objects.all()
     serializer_class = SubRoutineSerializer
     permission_classes = (IsAuthenticated, IsOwnerOrReadOnly)
@@ -34,7 +35,7 @@ class SubRoutineViewSet(ModelViewSet):
         return SubRoutine.objects.filter(user=user)
 
 
-class ReportViewSet(ModelViewSet):
+class ReportViewSet(viewsets.ModelViewSet):
     queryset = Report.objects.all()
     serializer_class = ReportSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, IsAuthorOrReadyOnly)
@@ -45,6 +46,24 @@ class ReportViewSet(ModelViewSet):
             return Report.objects.filter(authors=user)
         else:
             return Report.objects.all()
+
+
+class LabelViewSet(viewsets.ViewSet):
+
+    def list(self, request, *args, **kwargs):
+        try:
+            return Response(request.user.labels)
+        except:
+            raise Http404()
+
+    @decorators.api_view()
+    def list_user_labels(request, user_id):
+        try:
+            user = User.objects.get(pk=user_id)
+        except User.DoesNotExist:
+            raise Http404()
+
+        return Response(user.labels)
 
 
 @require_http_methods(['POST', 'GET', 'DELETE'])

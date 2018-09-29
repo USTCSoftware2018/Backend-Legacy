@@ -52,6 +52,7 @@ def make_login_view(serializer_cls):
 
     return handler
 
+
 register = make_view(RegisterSerializer)
 login = make_login_view(LoginSerializer)
 
