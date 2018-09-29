@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound, ValidationError
 
+from django.http import Http404
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.core.files.storage import default_storage
 from django.db import models
@@ -173,6 +174,16 @@ class UserViewSet(
         user = self.get_object()
         data = UserSerializer(user).data
         return Response(data)
+
+
+@decorators.api_view()
+def list_reports(request, user_id, *args, **kwargs):
+    from biohub.editor.models import Report
+    from biohub.editor.serializers import ReportSerializer
+
+    queryset = Report.objects.filter(authors__in=user_id)
+    serializer = ReportSerializer(queryset, many=True)
+    return Response(serializer.data)
 
 
 class UserRelationViewSet(mixins.ListModelMixin, BaseUserViewSetMixin):
