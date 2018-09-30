@@ -67,3 +67,29 @@ class SubRoutineSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubRoutine
         fields = ('id', 'user', 'content_json', 'yield_method')
+
+
+class LabelSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    name = serializers.CharField()
+    report_count = serializers.IntegerField(read_only=True)
+    reports = ReportInfoSerializer(many=True, read_only=True)
+
+    def to_representation(self, instance):
+        queryset = Report.objects.filter(label=instance)
+        return {
+            'id': instance.id,
+            'name': instance.label_name,
+            'reports_count': queryset.count(),
+            'reports': ReportInfoSerializer(queryset, many=True).data
+        }
+
+    def update(self, instance, validated_data):
+        assert (instance.id == validated_data['id'])
+        instance.label_name = validated_data['name']
+        instance.save()
+        return instance
+
+    def create(self, validated_data):
+        label, created = Label.objects.get_or_create(label_name=validated_data['name'], user=validated_data['user'])
+        return label

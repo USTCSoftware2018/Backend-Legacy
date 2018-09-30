@@ -11,7 +11,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticate
 from biohub.accounts.models import User
 from .models import Graph, SubRoutine, Step, Report, Label
 from .models import Comment, CommentReply
-from .serializers import StepSerializer, SubRoutineSerializer, ReportSerializer
+from .serializers import StepSerializer, SubRoutineSerializer, ReportSerializer, LabelSerializer
 from .permissions import IsOwnerOrReadOnly, IsAuthorOrReadyOnly
 
 
@@ -49,12 +49,14 @@ class ReportViewSet(viewsets.ModelViewSet):
 
 
 class LabelViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
-    def list(self, request, *args, **kwargs):
-        try:
-            return Response(request.user.labels)
-        except:
-            raise Http404()
+    def create(self, request, *args, **kwargs):
+        user = request.user
+        serializer = LabelSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(user=user)
+        return HttpResponse('true', status=201)
 
     @decorators.api_view()
     def list_user_labels(request, user_id):
@@ -63,8 +65,9 @@ class LabelViewSet(viewsets.ViewSet):
         except User.DoesNotExist:
             raise Http404()
 
-        labels = Label.objects.filter(reports_related__authors=user)
-        return Response(l.label_name for l in labels)
+        labels = Label.objects.filter(user=user)
+        serializer = LabelSerializer(labels, many=True)
+        return Response(serializer.data)
 
 
 @require_http_methods(['POST', 'GET', 'DELETE'])
