@@ -52,11 +52,10 @@ class LabelViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def create(self, request, *args, **kwargs):
-        user = request.user
         serializer = LabelSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save(user=user)
-        return HttpResponse('true', status=201)
+        serializer.save(user=request.user)
+        return Response(serializer.data, status=201)
 
     @decorators.api_view()
     def list_user_labels(request, user_id):
@@ -68,28 +67,6 @@ class LabelViewSet(viewsets.ViewSet):
         labels = Label.objects.filter(user=user)
         serializer = LabelSerializer(labels, many=True)
         return Response(serializer.data)
-
-
-@require_http_methods(['POST', 'GET', 'DELETE'])
-def report_html(request, id):
-    user = request.user
-    try:
-        report = Report.objects.get(id=id)
-    except Report.DoesNotExist:
-        return Http404()
-
-    if request.method == 'GET':
-        return HttpResponse(report.html)
-    elif request.method == 'POST':
-        if not user or not user.is_authenticated or user not in report.authors:
-            return Http404()
-        report.html = request.data
-        return HttpResponse()
-    elif request.method == 'DELETE':
-        if not user or not user.is_authenticated or user not in report.authors:
-            return Http404()
-        report.html = ""
-        return HttpResponse()
 
 
 def post_picture(request):
