@@ -36,6 +36,7 @@ def make_view(serializer_cls):
 
     return handler
 
+
 def make_login_view(serializer_cls):
 
     @decorators.api_view(['POST'])
@@ -179,10 +180,10 @@ class UserViewSet(
 @decorators.api_view()
 def list_reports(request, user_id, *args, **kwargs):
     from biohub.editor.models import Report
-    from biohub.editor.serializers import ReportSerializer
+    from biohub.editor.serializers import ReportInfoSerializer
 
     queryset = Report.objects.filter(authors__in=user_id)
-    serializer = ReportSerializer(queryset, many=True)
+    serializer = ReportInfoSerializer(queryset, many=True)
     return Response(serializer.data)
 
 
