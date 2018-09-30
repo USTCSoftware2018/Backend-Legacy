@@ -3,7 +3,7 @@ from rest_framework import decorators, viewsets, permissions
 from rest_framework.response import Response
 
 from biohub.editor.models import Report
-from biohub.editor.serializers import ReportSerializer
+from biohub.editor.serializers import ReportInfoSerializer
 
 from biohub.community.models import Star
 from biohub.community.serializers import StarRequestSerializer
@@ -16,7 +16,7 @@ class StarViewSet(viewsets.ViewSet):
     def list(self, request):
         user = request.user
         queryset = Report.objects.filter(star__starrer=user)
-        return Response(ReportSerializer(queryset, many=True).data)
+        return Response(ReportInfoSerializer(queryset, many=True).data)
 
     # Route: POST /users/favorites/
     def create(self, request):

@@ -1,7 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.encoding import smart_text
 from rest_framework import serializers
-from biohub.accounts.models import User
+from biohub.accounts.serializers import UserInfoSerializer
 from .models import Report, Step, SubRoutine, Label
 
 
@@ -26,6 +26,31 @@ class ReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = Report
         fields = ('id', 'title', 'envs', 'authors', 'introduction', 'label', 'ntime', 'mtime', 'result', 'subroutines')
+
+
+class ReportInfoSerializer(serializers.BaseSerializer):
+    """
+    This is a read-only serializer for Report.  It's used when contents are not necessary.
+    """
+    id = serializers.IntegerField()
+    title = serializers.CharField()
+    author = UserInfoSerializer(many=True, read_only=True)
+    labels = serializers.SlugRelatedField(slug_field='label_name', many=True, read_only=True)
+    abstract = serializers.CharField()
+    commentsnum = serializers.IntegerField()
+    likesnum = serializers.IntegerField()
+
+    def to_representation(self, instance):
+        cls = ReportInfoSerializer
+        return {
+            'id': instance.id,
+            'title': instance.title,
+            'author': cls.author.to_representation(instance.authors.all()),
+            'labels': cls.labels.to_representation(instance.label.all()),
+            'abstract': instance.introduction,
+            'commentsnum': instance.comments.count(),
+            'likesnum': instance.star_set.count()
+        }
 
 
 class StepSerializer(serializers.ModelSerializer):

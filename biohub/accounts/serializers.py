@@ -28,6 +28,16 @@ class UserSerializer(ModelSerializer):
         read_only_fields = ('last_logined', 'avatar_url')
 
 
+class UserInfoSerializer(serializers.ModelSerializer):
+    """
+    A cut-down version of UserSerializer.
+    """
+
+    class Meta:
+        model = User
+        fields = ('id', 'avatar_url', 'username')
+
+
 class RegisterSerializer(serializers.ModelSerializer):
 
     def _check_throttle(self):
