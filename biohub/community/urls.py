@@ -4,6 +4,9 @@ from biohub.community import views
 
 router = DefaultRouter()
 router.register(r'users/favorites', views.StarViewSet, base_name='favorites')
+router.register(r'users/collections', views.CollectionViewSet, base_name='collections')
 
 # Place your route definition here.
-register_api(r'^', router.urls, 'users/favorites')
+register_api(r'^', [
+    url(r'^users/collect/?$', views.collect, name='collect')
+] + router.urls, 'community')

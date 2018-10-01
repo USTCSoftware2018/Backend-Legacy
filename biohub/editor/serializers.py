@@ -40,6 +40,12 @@ class ReportInfoSerializer(serializers.BaseSerializer):
     commentsnum = serializers.IntegerField()
     likesnum = serializers.IntegerField()
 
+    def to_internal_value(self, data):
+        try:
+            return Report.objects.get(id=int(data))
+        except:
+            return Report.objects.get(**data)
+
     def to_representation(self, instance):
         cls = ReportInfoSerializer
         return {
@@ -82,6 +88,33 @@ class LabelSerializer(serializers.Serializer):
             'name': instance.label_name,
             'reports_count': queryset.count(),
             'reports': ReportInfoSerializer(queryset, many=True).data
+        }
+
+    def update(self, instance, validated_data):
+        assert (instance.id == validated_data['id'])
+        instance.label_name = validated_data['name']
+        instance.save()
+        return instance
+
+    def create(self, validated_data):
+        label, created = Label.objects.get_or_create(label_name=validated_data['name'], user=validated_data['user'])
+        return label
+
+
+class LabelInfoSerializer(serializers.Serializer):
+    """
+    Only id, name, report_count are provided.
+    """
+    id = serializers.IntegerField(read_only=True)
+    name = serializers.CharField()
+    report_count = serializers.IntegerField(read_only=True)
+
+    def to_representation(self, instance):
+        queryset = Report.objects.filter(label=instance)
+        return {
+            'id': instance.id,
+            'name': instance.label_name,
+            'reports_count': queryset.count()
         }
 
     def update(self, instance, validated_data):
