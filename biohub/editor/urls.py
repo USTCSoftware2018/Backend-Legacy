@@ -10,7 +10,8 @@ router.register('label', views.LabelViewSet, base_name='label')
 
 register_api(r'^editor/', router.urls)
 register_api(r'^', [
-    url(r'^editor/label/(?P<user_id>[0-9]+)/$', views.LabelViewSet.list_user_labels),
+    url(r'^users/labels/(?P<user_id>[0-9]+)/$', views.LabelViewSet.list_user_labels),
     url(r'^users/popular-reports-list/?$', views.ReportViewSet.get_popular_reports),
-    url(r'^users/popular-reports-list/(?P<user_id>[0-9]+)/?$', views.ReportViewSet.get_user_popular_reports)
+    url(r'^users/popular-reports-list/(?P<user_id>[0-9]+)/?$', views.ReportViewSet.get_user_popular_reports),
+    url(r'^users/reports/archives/(?P<user_id>[0-9]+)/?$', views.ReportViewSet.get_user_archives)
 ], '')

@@ -1,7 +1,7 @@
+from django.db.models.functions import TruncMonth
 from django.http import HttpResponse, Http404
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_text
-from django.views.decorators.http import require_http_methods
 from django.conf import settings
 import json
 from django.utils import timezone
@@ -9,11 +9,11 @@ from rest_framework import mixins, viewsets, decorators
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from biohub.accounts.models import User
-from .models import Graph, SubRoutine, Step, Report, Label
+from .models import Graph, SubRoutine, Step, Report, Label, Archive
 from .models import Comment, CommentReply
-from .serializers import StepSerializer, SubRoutineSerializer, ReportSerializer, LabelSerializer
+from .serializers import StepSerializer, SubRoutineSerializer, ReportSerializer, LabelSerializer, ArchiveSerializer
 from .serializers import PopularReportSerializer, ReportInfoSerializer
-from .permissions import IsOwnerOrReadOnly, IsAuthorOrReadyOnly
+from .permissions import IsOwnerOrReadOnly, IsAuthorOrReadyOnly, IsOwner
 
 
 class StepViewSet(viewsets.ModelViewSet):
@@ -46,12 +46,14 @@ class ReportViewSet(viewsets.ModelViewSet):
         obj.viewed()  # increment views counter
         return obj
 
+    @staticmethod
     @decorators.api_view(['get'])
     def get_popular_reports(request):
         queryset = Report.get_popular()
         serializer = ReportInfoSerializer(queryset, many=True)
         return Response(serializer.data)
 
+    @staticmethod
     @decorators.api_view(['get'])
     def get_user_popular_reports(request, user_id):
         try:
@@ -65,15 +67,25 @@ class ReportViewSet(viewsets.ModelViewSet):
         serializer = PopularReportSerializer(queryset, many=True)
         return Response(serializer.data)
 
+    @staticmethod
+    @decorators.api_view(['get'])
+    def get_user_archives(request, user_id):
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({
+                'response': 'User id %s does not exist' % str(user_id)
+            }, status=404)
 
-class LabelViewSet(viewsets.ViewSet):
-    permission_classes = [IsAuthenticatedOrReadOnly]
+        archives = Archive.objects.filter(user=user)
+        serializer = ArchiveSerializer(archives, many=True)
+        return Response(serializer.data)
 
-    def create(self, request, *args, **kwargs):
-        serializer = LabelSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(user=request.user)
-        return Response(serializer.data, status=201)
+
+class LabelViewSet(viewsets.ModelViewSet):
+    queryset = Label.objects.all()
+    serializer_class = LabelSerializer
+    permission_classes = [IsOwner]
 
     @decorators.api_view()
     def list_user_labels(request, user_id):

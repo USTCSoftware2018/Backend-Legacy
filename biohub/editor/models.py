@@ -1,3 +1,4 @@
+from django.utils.timezone import datetime
 from django.db import models
 from django.db.models import F
 from django.conf import settings
@@ -7,7 +8,7 @@ from biohub.accounts.models import User
 class Report(models.Model):
 
     title = models.CharField(max_length=256)
-    authors = models.ManyToManyField(User)
+    author = models.ForeignKey(User)
     introduction = models.TextField()
     label = models.ManyToManyField('Label', related_name='reports_related')
     ntime = models.DateTimeField(auto_now_add=True)
@@ -16,12 +17,19 @@ class Report(models.Model):
     subroutines = models.TextField()  # json
     envs = models.TextField(null=True)         # json
     views = models.IntegerField(default=0)
+    archive = models.ForeignKey('Archive', related_name='reports')
 
     # See comments in Comment model!
     # See praises(likes in the doc) in User model
 
     def __str__(self):
         return 'id:{}, title:{}'.format(self.pk, self.title)
+
+    def save(self, *args, **kwargs):
+        d = datetime(year=self.ntime.year, month=self.ntime.month, day=1)
+        archive, _ = Archive.objects.get_or_create(user=self.author, date=d)
+        self.archive = archive
+        super().save(*args, **kwargs)
 
     def viewed(self):
         self.views = F('views') + 1
@@ -47,7 +55,7 @@ class Report(models.Model):
     @staticmethod
     def get_user_popular(user):
         sorter = Report.get_sorter()
-        return Report.objects.filter(authors=user).order_by(sorter)
+        return Report.objects.filter(author=user).order_by(sorter)
 
 
 class Step(models.Model):
@@ -66,6 +74,11 @@ class SubRoutine(models.Model):
 
     def __str__(self):
         return 'id:{}'.format(self.pk)
+
+
+class Archive(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    date = models.DateField()  # Trunc to month
 
 
 class Label(models.Model):

@@ -33,6 +33,14 @@ class UserInfoSerializer(serializers.ModelSerializer):
     A cut-down version of UserSerializer.
     """
 
+    def to_internal_value(self, data):
+        if isinstance(data, str):
+            return User(username=data)
+        elif isinstance(data, int):
+            return User(pk=data)
+        else:
+            return User(**data)
+
     class Meta:
         model = User
         fields = ('id', 'avatar_url', 'username')
