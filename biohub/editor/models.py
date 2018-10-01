@@ -27,8 +27,7 @@ class Report(models.Model):
         self.views = F('views') + 1
         self.save()
 
-    @property
-    def points(self):
+    def get_points(self):
         return self.views + self.star_set.count() * 2 + self.comments.count() * 2
 
     @staticmethod

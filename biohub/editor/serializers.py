@@ -60,10 +60,7 @@ class ReportInfoSerializer(serializers.BaseSerializer):
 
 
 class PopularReportSerializer(serializers.ModelSerializer):
-    praises = serializers.SerializerMethodField()
-
-    def get_praises(self, instance):
-        return instance.points
+    praises = serializers.IntegerField(source='get_points')
 
     class Meta:
         model = Report
