@@ -12,6 +12,7 @@ from biohub.accounts.models import User
 from .models import Graph, SubRoutine, Step, Report, Label
 from .models import Comment, CommentReply
 from .serializers import StepSerializer, SubRoutineSerializer, ReportSerializer, LabelSerializer
+from .serializers import PopularReportSerializer, ReportInfoSerializer
 from .permissions import IsOwnerOrReadOnly, IsAuthorOrReadyOnly
 
 
@@ -40,12 +41,29 @@ class ReportViewSet(viewsets.ModelViewSet):
     serializer_class = ReportSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, IsAuthorOrReadyOnly)
 
-    def get_queryset(self):
-        user = self.request.user
-        if user.is_authenticated:
-            return Report.objects.filter(authors=user)
-        else:
-            return Report.objects.all()
+    def get_object(self):
+        obj = super().get_object()
+        obj.viewed()  # increment views counter
+        return obj
+
+    @decorators.api_view(['get'])
+    def get_popular_reports(request):
+        queryset = Report.get_popular()
+        serializer = ReportInfoSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @decorators.api_view(['get'])
+    def get_user_popular_reports(request, user_id):
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({
+                'response': 'User id %s does not exist' % str(user_id)
+            }, status=404)
+
+        queryset = Report.get_user_popular(user)
+        serializer = PopularReportSerializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class LabelViewSet(viewsets.ViewSet):

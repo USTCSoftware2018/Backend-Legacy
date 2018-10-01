@@ -59,6 +59,17 @@ class ReportInfoSerializer(serializers.BaseSerializer):
         }
 
 
+class PopularReportSerializer(serializers.ModelSerializer):
+    praises = serializers.SerializerMethodField()
+
+    def get_praises(self, instance):
+        return instance.points
+
+    class Meta:
+        model = Report
+        fields = ('id', 'title', 'praises')
+
+
 class StepSerializer(serializers.ModelSerializer):
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
 

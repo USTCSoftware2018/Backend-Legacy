@@ -13,5 +13,5 @@ class Star(models.Model):
 class Collection(models.Model):
     name = models.CharField(max_length=125)
     collector = models.ForeignKey(User)
-    reports = models.ManyToManyField(Report, null=True)
+    reports = models.ManyToManyField(Report)
 

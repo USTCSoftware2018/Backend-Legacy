@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import F
 from django.conf import settings
 from biohub.accounts.models import User
 
@@ -14,12 +15,40 @@ class Report(models.Model):
     result = models.TextField()       # json
     subroutines = models.TextField()  # json
     envs = models.TextField(null=True)         # json
+    views = models.IntegerField(default=0)
 
     # See comments in Comment model!
     # See praises(likes in the doc) in User model
 
     def __str__(self):
         return 'id:{}, title:{}'.format(self.pk, self.title)
+
+    def viewed(self):
+        self.views = F('views') + 1
+        self.save()
+
+    @property
+    def points(self):
+        return self.views + self.star_set.count() * 2 + self.comments.count() * 2
+
+    @staticmethod
+    def get_sorter():
+        """
+        Points = views + 2 * stars + 2 * comments
+
+        :return: a sorter can be used for QuerySet.order_by()
+        """
+        return (F('views') + (F('star') + F('comments')) * 2).desc()
+
+    @staticmethod
+    def get_popular():
+        sorter = Report.get_sorter()
+        return Report.objects.order_by(sorter)
+
+    @staticmethod
+    def get_user_popular(user):
+        sorter = Report.get_sorter()
+        return Report.objects.filter(authors=user).order_by(sorter)
 
 
 class Step(models.Model):
