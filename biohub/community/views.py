@@ -25,14 +25,10 @@ class StarViewSet(viewsets.ViewSet):
         serializer = StarRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         report_id = serializer.data['id']
-        _, created = Star.objects.get_or_create(starrer=user, starred_report_id=report_id)
-        if created:
-            # TODO: should we notify the starree here?
-            return HttpResponse('true', status=201)
-        else:
-            return HttpResponse('true', status=200)
+        Star.objects.get_or_create(starrer=user, starred_report_id=report_id)
+        return HttpResponse('true', status=200)
 
-    # Route: POST /users/favorites/unstar
+    # Route: POST /users/favorites/unstar/
     @decorators.list_route(methods=['post'])
     def unstar(self, request):
         user = request.user
@@ -43,9 +39,7 @@ class StarViewSet(viewsets.ViewSet):
         if queryset:
             for star in queryset:
                 star.delete()
-            return HttpResponse('true', status=202)
-        else:
-            return HttpResponse('true', status=200)
+        return HttpResponse('true', status=200)
 
 
 class CollectionViewSet(viewsets.ModelViewSet):

@@ -17,3 +17,9 @@ from django.apps import AppConfig
 class CommunityConfig(AppConfig):
     name = 'biohub.community'
     label = 'community'
+    times_calling_ready_method = 0
+
+    def ready(self):
+        CommunityConfig.times_calling_ready_method += 1
+        if CommunityConfig.times_calling_ready_method <= 1:
+            import biohub.community.signals  # noqa

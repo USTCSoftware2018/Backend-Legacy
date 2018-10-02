@@ -25,6 +25,9 @@ class Report(models.Model):
     def __str__(self):
         return 'id:{}, title:{}'.format(self.pk, self.title)
 
+    def get_router_arguments(self):
+        return 'report', self.pk
+
     def save(self, *args, **kwargs):
         d = datetime(year=self.ntime.year, month=self.ntime.month, day=1)
         archive, _ = Archive.objects.get_or_create(user=self.author, date=d)

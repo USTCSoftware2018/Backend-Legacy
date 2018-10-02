@@ -7,6 +7,7 @@ from django.core.validators import MaxLengthValidator
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.core.files.storage import default_storage
 
+from biohub.accounts.user_defined_signals import follow_user_signal, unfollow_user_signal
 from biohub.accounts.validators import UsernameValidator
 from biohub.core.files.utils import url_to_filename
 
@@ -134,11 +135,15 @@ class User(AbstractBaseUser):
 
         target_user.followers.add(self)
 
+        follow_user_signal.send(sender=self.__class__, instance=self, target_user=target_user)
+
     def unfollow(self, target_user):
         """
         To unfollow a specific user.
         """
         target_user.followers.remove(self)
+
+        unfollow_user_signal.send(sender=self.__class__, instance=self, target_user=target_user)
 
     def update_avatar(self, url):
         old_name = url_to_filename(self.avatar_url)
