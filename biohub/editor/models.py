@@ -2,6 +2,7 @@ from django.utils.timezone import datetime
 from django.db import models
 from django.db.models import F
 from django.conf import settings
+from django.contrib.contenttypes.fields import GenericRelation
 from biohub.accounts.models import User
 
 
@@ -16,8 +17,11 @@ class Report(models.Model):
     result = models.TextField()       # json
     subroutines = models.TextField()  # json
     envs = models.TextField(null=True)         # json
+
     views = models.IntegerField(default=0)
     archive = models.ForeignKey('Archive', related_name='reports')
+
+    notices = GenericRelation('notices.Notice', 'target_id', 'target_type', related_query_name='report')
 
     # See comments in Comment model!
     # See praises(likes in the doc) in User model

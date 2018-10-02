@@ -37,8 +37,7 @@ class StarViewSet(viewsets.ViewSet):
         report_id = serializer.data['id']
         queryset = Star.objects.filter(starrer=user, starred_report_id=report_id)
         if queryset:
-            for star in queryset:
-                star.delete()
+            queryset.delete()
         return HttpResponse('true', status=200)
 
 
