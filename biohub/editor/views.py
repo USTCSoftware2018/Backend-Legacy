@@ -5,7 +5,7 @@ from django.utils.encoding import force_bytes, force_text
 from django.conf import settings
 import json
 from django.utils import timezone
-from rest_framework import mixins, viewsets, decorators
+from rest_framework import viewsets, decorators, pagination
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from biohub.accounts.models import User
@@ -40,6 +40,7 @@ class ReportViewSet(viewsets.ModelViewSet):
     queryset = Report.objects.all()
     serializer_class = ReportSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, IsAuthorOrReadyOnly)
+    pagination_class = pagination.PageNumberPagination
 
     def get_object(self):
         obj = super().get_object()
@@ -48,10 +49,21 @@ class ReportViewSet(viewsets.ModelViewSet):
 
     @staticmethod
     @decorators.api_view(['get'])
+    def list_user_reports(request, user_id):
+        queryset = Report.objects.filter(author_id=user_id)
+        paginator = pagination.PageNumberPagination()
+        page = paginator.paginate_queryset(queryset, request)
+        serializer = ReportInfoSerializer(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
+
+    @staticmethod
+    @decorators.api_view(['get'])
     def get_popular_reports(request):
+        paginator = pagination.PageNumberPagination()
         queryset = Report.get_popular()
-        serializer = ReportInfoSerializer(queryset, many=True)
-        return Response(serializer.data)
+        page = paginator.paginate_queryset(queryset, request)
+        serializer = ReportInfoSerializer(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
     @staticmethod
     @decorators.api_view(['get'])
@@ -62,10 +74,11 @@ class ReportViewSet(viewsets.ModelViewSet):
             return Response({
                 'response': 'User id %s does not exist' % str(user_id)
             }, status=404)
-
+        paginator = pagination.PageNumberPagination()
         queryset = Report.get_user_popular(user)
-        serializer = PopularReportSerializer(queryset, many=True)
-        return Response(serializer.data)
+        page = paginator.paginate_queryset(queryset, request)
+        serializer = PopularReportSerializer(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
     @staticmethod
     @decorators.api_view(['get'])

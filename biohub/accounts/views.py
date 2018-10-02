@@ -177,16 +177,6 @@ class UserViewSet(
         return Response(data)
 
 
-@decorators.api_view()
-def list_reports(request, user_id, *args, **kwargs):
-    from biohub.editor.models import Report
-    from biohub.editor.serializers import ReportInfoSerializer
-
-    queryset = Report.objects.filter(authors__in=user_id)
-    serializer = ReportInfoSerializer(queryset, many=True)
-    return Response(serializer.data)
-
-
 class UserRelationViewSet(mixins.ListModelMixin, BaseUserViewSetMixin):
 
     queryset = User.objects.all()
