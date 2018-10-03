@@ -29,9 +29,13 @@ class ReportSerializer(serializers.ModelSerializer):
     ntime = serializers.DateTimeField(default=serializers.CreateOnlyDefault(timezone.now()))
 
     def validate(self, data):
-        author = data['author']
+        author = data.get('author', None)
+        if not author:
+            author = self.instance.author
+        else:
+            raise validators.ValidationError('This report does not have an author')
         labels = data.get('label', None)
-        if labels:
+        if labels and author:
             queryset = Label.objects.filter(user=author)
             for label in labels:
                 if label not in queryset:
