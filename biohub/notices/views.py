@@ -48,19 +48,19 @@ class NoticeViewSet(
         return Response(self.get_queryset().stats())
 
     @decorators.list_route(['GET'])
-    def feeds(self, *args, **kwargs):
+    def feeds(self, request, *args, **kwargs):
         """
         News from the users you're following.
         """
         qs = self.get_queryset().filter(category__startswith='Following').all()
         page = self.paginate_queryset(qs)
-        return Response(NoticeSerializer(page, many=True).data)
+        return self.get_paginated_response(NoticeSerializer(page, many=True).data)
 
     @decorators.list_route(['GET'])
-    def my(self, *args, **kwargs):
+    def my(self, request, *args, **kwargs):
         """
         Notifications sent specifically to the current user.
         """
         qs = self.get_queryset().filter(~Q(category__startswith='Following')).all()
         page = self.paginate_queryset(qs)
-        return Response(NoticeSerializer(page, many=True).data)
+        return self.get_paginated_response(NoticeSerializer(page, many=True).data)
