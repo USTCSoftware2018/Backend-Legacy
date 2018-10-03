@@ -12,6 +12,15 @@ from biohub.editor.models import Report, Comment
 from biohub.community.models import Star
 
 
+# Categories of notices:
+# + Follow  -- Somebody follows you
+# + Star    -- Somebody stars your report
+# + Comment -- Somebody comments on your report
+
+# Indirect notices:
+# + FollowingReport -- User you followed writes a new report
+
+
 @receiver(pre_delete, sender=Report)
 def remove_report_notices(instance, using, **kwargs):
     Notice.objects.filter(report=instance).delete()
@@ -32,7 +41,7 @@ def remove_notices_on_unfollow(instance, target_user, **kwargs):
     Notice.objects.filter(
         user=target_user,
         actor=instance,
-        category__in=['Report', 'Follow']
+        category__contains='Follow'   # This deletes both 'Follow' and 'FollowingWhatever'
     ).delete()
 
 
@@ -88,10 +97,10 @@ def send_new_report_notice_to_followers(instance, raw, created, **kwargs):
     if created:
         author = instance.author
         for follower in author.followers.all():
-            Dispatcher('Report').send(
+            Dispatcher('FollowingReport').send(
                 follower,
                 '{{actor.username|url:actor}} wrote a new report {{report.title|url:report}}',
                 actor=author,
                 report=instance,
-                target=instance
+                target=instance,
             )
