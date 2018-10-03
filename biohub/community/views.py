@@ -1,9 +1,12 @@
 from django.http import HttpResponse
-from rest_framework import decorators, viewsets, permissions
+from django.db.models import F
+from rest_framework import decorators, viewsets, permissions, generics, pagination, mixins
 from rest_framework.response import Response
 
+from biohub.accounts.models import User
+
 from biohub.editor.models import Report
-from biohub.editor.serializers import ReportInfoSerializer
+from biohub.editor.serializers import ReportInfoSerializer, UserInfoSerializer
 
 from biohub.community.models import Star, Collection
 from biohub.community.serializers import StarRequestSerializer, CollectRequestSerializer
@@ -68,3 +71,13 @@ def collect(request):
     except Report.DoesNotExist:
         return HttpResponse('{"detail": "report with id %d does not exist"}' % id, status=404)
     return Response(CollectionSerializer(collection).data)
+
+
+class ActiveUsersViewSet(generics.ListAPIView):
+    serializer_class = UserInfoSerializer
+    pagination_class = pagination.PageNumberPagination
+
+    def get_queryset(self):
+        sorter = F('report') * 10 + F('comment') * 2 + F('followers')
+        sorter = sorter.desc()
+        return User.objects.order_by(sorter)
