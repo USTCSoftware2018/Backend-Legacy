@@ -1,20 +1,22 @@
+from django.db.models.functions import TruncMonth
 from django.http import HttpResponse, Http404
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_text
-from django.views.decorators.http import require_http_methods
 from django.conf import settings
 import json
 from django.utils import timezone
-from rest_framework.viewsets import ModelViewSet
+from rest_framework import viewsets, decorators, pagination
+from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from biohub.accounts.models import User
-from .models import Graph, SubRoutine, Step, Report, Label
+from .models import Graph, SubRoutine, Step, Report, Label, Archive
 from .models import Comment, CommentReply
-from .serializers import StepSerializer, SubRoutineSerializer, ReportSerializer
-from .permissions import IsOwnerOrReadOnly, IsAuthorOrReadyOnly
+from .serializers import StepSerializer, SubRoutineSerializer, ReportSerializer, LabelSerializer, ArchiveSerializer
+from .serializers import PopularReportSerializer, ReportInfoSerializer
+from .permissions import IsOwnerOrReadOnly, IsAuthorOrReadyOnly, IsOwner
 
 
-class StepViewSet(ModelViewSet):
+class StepViewSet(viewsets.ModelViewSet):
     queryset = Step.objects.all()
     serializer_class = StepSerializer
     permission_classes = (IsAuthenticated, IsOwnerOrReadOnly)
@@ -24,7 +26,7 @@ class StepViewSet(ModelViewSet):
         return Step.objects.filter(user=user)
 
 
-class SubRoutineViewSet(ModelViewSet):
+class SubRoutineViewSet(viewsets.ModelViewSet):
     queryset = SubRoutine.objects.all()
     serializer_class = SubRoutineSerializer
     permission_classes = (IsAuthenticated, IsOwnerOrReadOnly)
@@ -34,39 +36,80 @@ class SubRoutineViewSet(ModelViewSet):
         return SubRoutine.objects.filter(user=user)
 
 
-class ReportViewSet(ModelViewSet):
+class ReportViewSet(viewsets.ModelViewSet):
     queryset = Report.objects.all()
     serializer_class = ReportSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, IsAuthorOrReadyOnly)
+    pagination_class = pagination.PageNumberPagination
 
-    def get_queryset(self):
-        user = self.request.user
-        if user.is_authenticated:
-            return Report.objects.filter(authors=user)
-        else:
-            return Report.objects.all()
+    def get_object(self):
+        obj = super().get_object()
+        obj.viewed()  # increment views counter
+        return obj
+
+    @staticmethod
+    @decorators.api_view(['get'])
+    def list_user_reports(request, user_id):
+        queryset = Report.objects.filter(author_id=user_id)
+        paginator = pagination.PageNumberPagination()
+        page = paginator.paginate_queryset(queryset, request)
+        serializer = ReportInfoSerializer(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
+
+    @staticmethod
+    @decorators.api_view(['get'])
+    def get_popular_reports(request):
+        paginator = pagination.PageNumberPagination()
+        queryset = Report.get_popular()
+        page = paginator.paginate_queryset(queryset, request)
+        serializer = ReportInfoSerializer(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
+
+    @staticmethod
+    @decorators.api_view(['get'])
+    def get_user_popular_reports(request, user_id):
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({
+                'response': 'User id %s does not exist' % str(user_id)
+            }, status=404)
+        paginator = pagination.PageNumberPagination()
+        queryset = Report.get_user_popular(user)
+        page = paginator.paginate_queryset(queryset, request)
+        serializer = PopularReportSerializer(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
+
+    @staticmethod
+    @decorators.api_view(['get'])
+    def get_user_archives(request, user_id):
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({
+                'response': 'User id %s does not exist' % str(user_id)
+            }, status=404)
+
+        archives = Archive.objects.filter(user=user)
+        serializer = ArchiveSerializer(archives, many=True)
+        return Response(serializer.data)
 
 
-@require_http_methods(['POST', 'GET', 'DELETE'])
-def report_html(request, id):
-    user = request.user
-    try:
-        report = Report.objects.get(id=id)
-    except Report.DoesNotExist:
-        return Http404()
+class LabelViewSet(viewsets.ModelViewSet):
+    queryset = Label.objects.all()
+    serializer_class = LabelSerializer
+    permission_classes = [IsOwner]
 
-    if request.method == 'GET':
-        return HttpResponse(report.html)
-    elif request.method == 'POST':
-        if not user or not user.is_authenticated or user not in report.authors:
-            return Http404()
-        report.html = request.data
-        return HttpResponse()
-    elif request.method == 'DELETE':
-        if not user or not user.is_authenticated or user not in report.authors:
-            return Http404()
-        report.html = ""
-        return HttpResponse()
+    @decorators.api_view()
+    def list_user_labels(request, user_id):
+        try:
+            user = User.objects.get(pk=user_id)
+        except User.DoesNotExist:
+            raise Http404()
+
+        labels = Label.objects.filter(user=user)
+        serializer = LabelSerializer(labels, many=True)
+        return Response(serializer.data)
 
 
 def post_picture(request):

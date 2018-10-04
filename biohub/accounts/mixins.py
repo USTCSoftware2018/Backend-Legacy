@@ -38,8 +38,8 @@ class BaseUserViewSetMixin(viewsets.GenericViewSet):
             if not self.request.user.is_authenticated():
                 raise NotFound
 
-            if self.action != 'retrieve':
-                return self.request.user
+            #if self.action != 'retrieve':
+            #    return self.request.user
 
             lookup = str(self.request.user.id)
 

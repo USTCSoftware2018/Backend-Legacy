@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound, ValidationError
 
+from django.http import Http404
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.core.files.storage import default_storage
 from django.db import models
@@ -35,6 +36,7 @@ def make_view(serializer_cls):
 
     return handler
 
+
 def make_login_view(serializer_cls):
 
     @decorators.api_view(['POST'])
@@ -48,15 +50,10 @@ def make_login_view(serializer_cls):
             user = serializer.save()
             auth_login(request, user)
             data = UserSerializer(user).data
-            data["stat"] = {
-                'follower_count': user.followers.count(),
-                'following_count': User.followers.through.objects.filter(to_user_id=user.id).count(),
-                'star_count': StarredUser.objects.filter(user=user).count(),
-                'experience_count': Experience.objects.filter(author=user).count()
-            }
             return Response(data)
 
     return handler
+
 
 register = make_view(RegisterSerializer)
 login = make_login_view(LoginSerializer)
@@ -134,22 +131,24 @@ class UserViewSet(
 
         qs = super(UserViewSet, self).get_user_queryset()
 
-        if self.action == 'retrieve':
-
-            if self.request.user.is_authenticated():
-                qs = qs.annotate(
-                    followed=models.ExpressionWrapper(
-                        models.Count(
-                            models.Subquery(
-                                User.following.through.objects.filter(
-                                    to_user_id=self.request.user.id,
-                                    from_user_id=models.OuterRef('id')
-                                ).values('id')
-                            )
-                        ),
-                        output_field=models.BooleanField()
-                    )
+        if self.request.user.is_authenticated():
+            qs = qs.annotate(
+                followed=models.ExpressionWrapper(
+                    models.Count(
+                        models.Subquery(
+                            User.following.through.objects.filter(
+                                to_user_id=self.request.user.id,
+                                from_user_id=models.OuterRef('id')
+                            ).values('id')
+                        )
+                    ),
+                    output_field=models.BooleanField()
                 )
+            )
+        else:
+            qs = qs.annotate(
+                followed=models.Value(False, output_field=models.BooleanField())
+            )
 
         return qs
 
@@ -174,15 +173,8 @@ class UserViewSet(
     def stat(self, request, *args, **kwargs):
 
         user = self.get_object()
-
-        result = {
-            'follower_count': user.followers.count(),
-            'following_count': User.followers.through.objects.filter(to_user_id=user.id).count(),
-            'star_count': StarredUser.objects.filter(user=user).count(),
-            'experience_count': Experience.objects.filter(author=user).count()
-        }
-
-        return Response(result)
+        data = UserSerializer(user).data
+        return Response(data)
 
 
 class UserRelationViewSet(mixins.ListModelMixin, BaseUserViewSetMixin):
@@ -218,10 +210,33 @@ class UserRelationViewSet(mixins.ListModelMixin, BaseUserViewSetMixin):
                     output_field=models.BooleanField()
                 )
             )
+        else:
+            rel_field = rel_field.annotate(
+                followed=models.Value(False, output_field=models.BooleanField())
+            )
 
         return rel_field.order_by('id')
 
-    for view_name in allowed_actions:
-        locals()[view_name] = decorators.list_route(methods=['GET'])(
-            lambda self, *args, **kwargs: self.list(*args, **kwargs)
-        )
+    # for view_name in allowed_actions:
+    #     locals()[view_name] = decorators.list_route(methods=['GET'])(
+    #         lambda self, *args, **kwargs: self.list(*args, **kwargs)
+    #     )
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @decorators.list_route(methods=['GET'])
+    def followers(self, *args, **kwargs):
+        return self.list(*args, **kwargs)
+
+    @decorators.list_route(methods=['GET'])
+    def following(self, *args, **kwargs):
+        return self.list(*args, **kwargs)

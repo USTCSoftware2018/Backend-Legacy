@@ -20,11 +20,30 @@ from .models import User
 class UserSerializer(ModelSerializer):
 
     followed = serializers.BooleanField(required=False, read_only=True)
+    stat = serializers.JSONField(source='get_stat', required=False, read_only=True)
 
     class Meta:
         model = User
         exclude = ('password', 'followers',)
         read_only_fields = ('last_logined', 'avatar_url')
+
+
+class UserInfoSerializer(serializers.ModelSerializer):
+    """
+    A cut-down version of UserSerializer.
+    """
+
+    def to_internal_value(self, data):
+        if isinstance(data, str):
+            return User(username=data)
+        elif isinstance(data, int):
+            return User(pk=data)
+        else:
+            return User(**data)
+
+    class Meta:
+        model = User
+        fields = ('id', 'avatar_url', 'username')
 
 
 class RegisterSerializer(serializers.ModelSerializer):

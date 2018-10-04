@@ -1,11 +1,15 @@
+from django.utils.timezone import datetime
 from django.db import models
+from django.db.models import F
 from django.conf import settings
+from django.contrib.contenttypes.fields import GenericRelation
+from biohub.accounts.models import User
 
 
 class Report(models.Model):
 
     title = models.CharField(max_length=256)
-    # authors <-- user.User.reports
+    author = models.ForeignKey(User)
     introduction = models.TextField()
     label = models.ManyToManyField('Label', related_name='reports_related')
     ntime = models.DateTimeField(auto_now_add=True)
@@ -13,13 +17,52 @@ class Report(models.Model):
     result = models.TextField()       # json
     subroutines = models.TextField()  # json
     envs = models.TextField(null=True)         # json
-    html = models.TextField()         # html
+
+    views = models.IntegerField(default=0)
+    archive = models.ForeignKey('Archive', related_name='reports')
+
+    notices = GenericRelation('notices.Notice', 'target_id', 'target_type', related_query_name='report')
 
     # See comments in Comment model!
     # See praises(likes in the doc) in User model
 
     def __str__(self):
         return 'id:{}, title:{}'.format(self.pk, self.title)
+
+    def get_router_arguments(self):
+        return 'report', self.pk
+
+    def save(self, *args, **kwargs):
+        d = datetime(year=self.ntime.year, month=self.ntime.month, day=1)
+        archive, _ = Archive.objects.get_or_create(user=self.author, date=d)
+        self.archive = archive
+        super().save(*args, **kwargs)
+
+    def viewed(self):
+        self.views = F('views') + 1
+        self.save()
+
+    def get_points(self):
+        return self.views + self.star_set.count() * 2 + self.comments.count() * 2
+
+    @staticmethod
+    def get_sorter():
+        """
+        Points = views + 2 * stars + 2 * comments
+
+        :return: a sorter can be used for QuerySet.order_by()
+        """
+        return (F('views') + (F('star') + F('comments')) * 2).desc()
+
+    @staticmethod
+    def get_popular():
+        sorter = Report.get_sorter()
+        return Report.objects.order_by(sorter)
+
+    @staticmethod
+    def get_user_popular(user):
+        sorter = Report.get_sorter()
+        return Report.objects.filter(author=user).order_by(sorter)
 
 
 class Step(models.Model):
@@ -40,8 +83,14 @@ class SubRoutine(models.Model):
         return 'id:{}'.format(self.pk)
 
 
+class Archive(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    date = models.DateField()  # Trunc to month
+
+
 class Label(models.Model):
-    label_name = models.CharField(max_length=64, unique=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='labels', on_delete=models.CASCADE)
+    label_name = models.CharField(max_length=64)
 
     def __str__(self):
         return 'id:{}, name:{}'.format(self.pk, self.label_name)

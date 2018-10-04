@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework import viewsets, mixins, decorators
 from rest_framework.response import Response
 from biohub.utils.rest import pagination, permissions as p
@@ -45,3 +46,21 @@ class NoticeViewSet(
     @decorators.list_route(['GET'])
     def stats(self, *args, **kwargs):
         return Response(self.get_queryset().stats())
+
+    @decorators.list_route(['GET'])
+    def feeds(self, request, *args, **kwargs):
+        """
+        News from the users you're following.
+        """
+        qs = self.get_queryset().filter(category__startswith='Following').all()
+        page = self.paginate_queryset(qs)
+        return self.get_paginated_response(NoticeSerializer(page, many=True).data)
+
+    @decorators.list_route(['GET'])
+    def my(self, request, *args, **kwargs):
+        """
+        Notifications sent specifically to the current user.
+        """
+        qs = self.get_queryset().filter(~Q(category__startswith='Following')).all()
+        page = self.paginate_queryset(qs)
+        return self.get_paginated_response(NoticeSerializer(page, many=True).data)

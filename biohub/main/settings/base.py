@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'channels',
     'biohub.core',
+    'biohub.community',
     'biohub.accounts',
     'biohub.editor',
     'biohub.notices',

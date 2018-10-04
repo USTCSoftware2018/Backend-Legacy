@@ -15,7 +15,7 @@ register_api(r'^', [
     url(r'^users/change_password/$',
         views.change_password, name='change-password'),
     url(r'^users/reset_password/$',
-        views.PasswordResetView.as_view(), name='reset-password')
+        views.PasswordResetView.as_view(), name='reset-password'),
 ] + router.urls, 'accounts')
 
 extra_router = DefaultRouter()
