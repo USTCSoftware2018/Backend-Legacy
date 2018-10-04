@@ -5,13 +5,14 @@ from django.utils.encoding import force_bytes, force_text
 from django.conf import settings
 import json
 from django.utils import timezone
-from rest_framework import viewsets, decorators, pagination
+from rest_framework import viewsets, decorators, pagination, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from biohub.accounts.models import User
 from .models import Graph, SubRoutine, Step, Report, Label, Archive
 from .models import Comment, CommentReply
-from .serializers import StepSerializer, SubRoutineSerializer, ReportSerializer, LabelSerializer, ArchiveSerializer
+from .serializers import StepSerializer, SubRoutineSerializer, ReportSerializer, LabelSerializer, ArchiveSerializer, \
+    GraphSerializers
 from .serializers import PopularReportSerializer, ReportInfoSerializer
 from .permissions import IsOwnerOrReadOnly, IsAuthorOrReadyOnly, IsOwner
 
@@ -112,6 +113,30 @@ class LabelViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
+class PictureViewSet(viewsets.ModelViewSet):
+    serializer_class = GraphSerializers
+    queryset = Graph.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        user_pk = request.user.pk
+        user = User.objects.get(pk=user_pk)
+        uidb64 = bytes.decode(urlsafe_base64_encode(force_bytes(user.pk)))
+        if user and user.is_active:
+            picture = request.FILES.get('graph')
+            if picture is None:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            if 10000 < picture.size < 409600000:
+                picture.name = uidb64 + '_' + timezone.now().strftime('%Y%m%d%H%M%S') + '_' + picture.name
+                image = Graph(owner=user, graph=picture)
+                image.save()
+                s = GraphSerializers(image)
+                return Response(s.data, status=status.HTTP_200_OK)
+            else:
+                return Response(status=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+
 def post_picture(request):
     if request.method == 'POST' or 'OPTIONS':
         user_pk = request.user.pk
@@ -180,73 +205,6 @@ def post_picture(request):
         response = HttpResponse(content_type="application/json")
         response.write(json.dumps(err_msg))
         return response
-
-
-# def comment_post(request):
-#     """
-#     This is comment_post upload function, request need a json in the body. Return a json. Second ranks!
-#     :param request:
-#                 body = {
-#                     'to_report': 366,  # report id
-#                     'message': "I find it funny",  # comment body
-#                     'to_comment': {
-#                     'type': 'master',  # One of "master", "main", "else"
-#                     'value': -1,  # One of -1(if master), super_comment's id(if main), the_comment_you_reply's id(if else)
-#                 }
-#             }
-#     :return:
-#     """
-#
-#     body = {
-#         'to_report': 366,  # report id
-#         'message': "I find it funny",  # comment body
-#         'to_comment': {
-#             'type': 'master',  # One of "master", "main", "else"
-#             'value': -1,  # One of -1(if master), super_comment's id(if main), the_comment_you_reply's id(if else)
-#         }
-#     }
-#     if request.method == 'POST':
-#         comment_json = request.POST.body.decode()
-#         comment = json.loads(comment_json)
-#         # comment_json = request.POST.get('comment', '')
-#         # comment = json.loads(comment_json)
-#         report_pk = comment['to_report']
-#         report = Report.objects.get(pk=report_pk)
-#         user = request.user
-#         message = comment['message']  # message
-#         to_comment = comment['to_comment']  # comment_pk
-#         # to_comment = json.loads(to_comment)
-#
-#         if user is not None and user.is_active:
-#
-#             if to_comment['type'] == 'master':
-#                 new_comment = Comment()
-#                 new_comment.user = user
-#                 new_comment.text = message
-#                 new_comment.to_report = report
-#                 new_comment.save()
-#             elif to_comment['type'] == 'main':
-#                 new_comment = CommentReply()
-#                 new_comment.user = user
-#                 new_comment.text = message
-#                 new_comment.to_report = report
-#                 new_comment.reply_to = None
-#                 super_comment = Comment.objects.get(id=to_comment['value'])
-#                 new_comment.super_comment = super_comment
-#                 new_comment.save()
-#             else:
-#                 new_comment = CommentReply()
-#                 new_comment.user = user
-#                 new_comment.text = message
-#                 new_comment.to_report = report
-#                 reply_to = CommentReply.objects.get(id=to_comment['value'])
-#                 super_comment = reply_to.super_comment
-#                 new_comment.reply_to = reply_to
-#                 new_comment.super_comment = super_comment
-#                 new_comment.save()
-#
-#         else:
-#             pass
 
 
 def comment_post_single(request):

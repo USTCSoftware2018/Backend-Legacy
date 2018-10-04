@@ -4,7 +4,7 @@ from django.utils.encoding import smart_text
 from rest_framework import serializers, validators
 from biohub.accounts.models import User
 from biohub.accounts.serializers import UserInfoSerializer
-from .models import Report, Step, SubRoutine, Label, Archive
+from .models import Report, Step, SubRoutine, Label, Archive, Graph
 
 
 class CreatableSlugRelatedField(serializers.SlugRelatedField):
@@ -162,3 +162,15 @@ class LabelInfoSerializer(serializers.Serializer):
     def create(self, validated_data):
         label, created = Label.objects.get_or_create(label_name=validated_data['name'], user=validated_data['user'])
         return label
+
+
+class GraphSerializers(serializers.Serializer):
+    # url = serializers.URLField()
+    pk = serializers.IntegerField(read_only=True)
+    owner = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    graph = serializers.ImageField()
+
+    class Meta:
+        model = Graph
+        fields = ('pk', 'owner', 'graph')
+
