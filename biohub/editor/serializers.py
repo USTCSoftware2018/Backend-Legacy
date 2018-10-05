@@ -7,20 +7,6 @@ from biohub.accounts.serializers import UserInfoSerializer
 from .models import Report, Step, SubRoutine, Label, Archive, Graph
 
 
-class CreatableSlugRelatedField(serializers.SlugRelatedField):
-    """
-    This is a custom SlugRelatedField that automatically create a field instead of
-    signalling an error.
-    """
-    def to_internal_value(self, data):
-        try:
-            return self.get_queryset().get_or_create(**{self.slug_field: data})[0]
-        except ObjectDoesNotExist:
-            self.fail('does_not_exist', slug_name=self.slug_field, value=smart_text(data))
-        except (TypeError, ValueError):
-            self.fail('invalid')
-
-
 class ReportSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(slug_field='username', read_only=True,
                                           default=serializers.CurrentUserDefault())
@@ -28,18 +14,23 @@ class ReportSerializer(serializers.ModelSerializer):
                                          queryset=Label.objects.all())
     ntime = serializers.DateTimeField(default=serializers.CreateOnlyDefault(timezone.now()))
 
+    def to_internal_value(self, data):
+        raw_label = data.pop('label', None)
+        o = super().to_internal_value(data)
+        author = o['author']
+        label_list = serializers.ListField().to_internal_value(raw_label)
+        labels = [Label.objects.get_or_create(label_name=l, user=author)[0].id for l in label_list]
+        o['label'] = labels
+        return o
+
     def validate(self, data):
         author = data.get('author', None)
         if not author:
             author = self.instance.author
-        else:
-            raise validators.ValidationError('This report does not have an author')
         labels = data.get('label', None)
         if labels and author:
-            queryset = Label.objects.filter(user=author)
             for label in labels:
-                if label not in queryset:
-                    raise validators.ValidationError("Object with label_name='%s' does not exist." % label.label_name)
+                Label.objects.get_or_create(user=author, label_name=label)
         return data
 
     class Meta:
