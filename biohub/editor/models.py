@@ -120,5 +120,3 @@ class CommentReply(Comment):
                                     related_name='replied_by')
     # super_comment = models.ForeignKey(Comment, on_delete=models.CASCADE, default=None, blank=True, null=True,
     #                                   related_name='sub_comments')
-
-

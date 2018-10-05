@@ -1,7 +1,5 @@
 from django.utils import timezone
-from django.core.exceptions import ObjectDoesNotExist
-from django.utils.encoding import smart_text
-from rest_framework import serializers, validators
+from rest_framework import serializers
 from biohub.accounts.models import User
 from biohub.accounts.serializers import UserInfoSerializer
 from .models import Report, Step, SubRoutine, Label, Archive, Graph
@@ -20,7 +18,7 @@ class ReportSerializer(serializers.ModelSerializer):
         author = o['author']
         label_list = serializers.ListField().to_internal_value(raw_label)
         labels = [Label.objects.get_or_create(label_name=l, user=author)[0].id for l in label_list]
-        o['label'] = labels
+        o.update(label=labels)
         return o
 
     def validate(self, data):
@@ -164,4 +162,3 @@ class GraphSerializers(serializers.Serializer):
     class Meta:
         model = Graph
         fields = ('pk', 'owner', 'graph')
-
