@@ -17,7 +17,7 @@ class ReportSerializer(serializers.ModelSerializer):
         o = super().to_internal_value(data)
         author = o['author']
         label_list = serializers.ListField().to_internal_value(raw_label)
-        labels = [Label.objects.get_or_create(label_name=l, user=author)[0].id for l in label_list]
+        labels = [Label.objects.get_or_create(label_name=l, user=author)[0].label_name for l in label_list]
         o.update(label=labels)
         return o
 
