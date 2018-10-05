@@ -1,5 +1,5 @@
 django-cors-headers==2.1.0
-Django==1.11.7
+Django==1.11.15
 djangorestframework==3.7.3
 django-filter==1.1.0
 rest-condition==1.0.3
@@ -7,7 +7,7 @@ channels==1.1.8
 PyMySQL==0.7.11
 filelock==2.0.13
 asgi-redis==1.4.3
-cryptography==2.1.4
+cryptography==2.3
 django-redis==4.8.0
 lxml==4.1.1
 requests==2.18.4
