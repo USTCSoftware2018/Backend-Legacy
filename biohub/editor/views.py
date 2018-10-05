@@ -126,7 +126,7 @@ class PictureViewSet(viewsets.ModelViewSet):
         except:
             return Response(status=status.HTTP_403_FORBIDDEN)
         if user and user.is_active:
-            picture = request.FILES.get('graph')
+            picture = request.FILES.get('graph') or request.FILES.get('file')
             if picture is None:
                 return Response(status=status.HTTP_404_NOT_FOUND)
             if 10000 < picture.size < 409600000:
