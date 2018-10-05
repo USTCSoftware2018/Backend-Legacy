@@ -116,11 +116,15 @@ class LabelViewSet(viewsets.ModelViewSet):
 class PictureViewSet(viewsets.ModelViewSet):
     serializer_class = GraphSerializers
     queryset = Graph.objects.all()
+    # permission_classes = [IsOwnerOrReadOnly]
 
     def create(self, request, *args, **kwargs):
-        user_pk = request.user.pk
-        user = User.objects.get(pk=user_pk)
-        uidb64 = bytes.decode(urlsafe_base64_encode(force_bytes(user.pk)))
+        try:
+            user_pk = request.user.pk
+            user = User.objects.get(pk=user_pk)
+            uidb64 = bytes.decode(urlsafe_base64_encode(force_bytes(user.pk)))
+        except:
+            return Response(status=status.HTTP_403_FORBIDDEN)
         if user and user.is_active:
             picture = request.FILES.get('graph')
             if picture is None:
