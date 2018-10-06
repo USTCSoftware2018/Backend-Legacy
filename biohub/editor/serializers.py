@@ -1,35 +1,32 @@
 from django.utils import timezone
+from django.core.exceptions import ObjectDoesNotExist
+from django.utils.encoding import smart_text
 from rest_framework import serializers
 from biohub.accounts.models import User
 from biohub.accounts.serializers import UserInfoSerializer
 from .models import Report, Step, SubRoutine, Label, Archive, Graph
 
 
+class CreatableSlugRelatedField(serializers.SlugRelatedField):
+    """
+    This is a custom SlugRelatedField that automatically create a field instead of
+    signalling an error.
+    """
+    def to_internal_value(self, data):
+        try:
+            return self.get_queryset().get_or_create(**{self.slug_field: data})[0]
+        except ObjectDoesNotExist:
+            self.fail('does_not_exist', slug_name=self.slug_field, value=smart_text(data))
+        except (TypeError, ValueError):
+            self.fail('invalid')
+
+
 class ReportSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(slug_field='username', read_only=True,
                                           default=serializers.CurrentUserDefault())
-    label = serializers.SlugRelatedField(slug_field='label_name', many=True, required=False,
-                                         queryset=Label.objects.all())
+    label = CreatableSlugRelatedField(slug_field='label_name', many=True, required=False,
+                                      queryset=Label.objects.all())
     ntime = serializers.DateTimeField(default=serializers.CreateOnlyDefault(timezone.now()))
-
-    def to_internal_value(self, data):
-        raw_label = data.pop('label', None)
-        o = super().to_internal_value(data)
-        author = o['author']
-        label_list = serializers.ListField().to_internal_value(raw_label)
-        labels = [Label.objects.get_or_create(label_name=l, user=author)[0].label_name for l in label_list]
-        o.update(label=labels)
-        return o
-
-    def validate(self, data):
-        author = data.get('author', None)
-        if not author:
-            author = self.instance.author
-        labels = data.get('label', None)
-        if labels and author:
-            for label in labels:
-                Label.objects.get_or_create(user=author, label_name=label)
-        return data
 
     class Meta:
         model = Report
@@ -114,7 +111,7 @@ class LabelSerializer(serializers.Serializer):
         return instance
 
     def create(self, validated_data):
-        label, created = Label.objects.get_or_create(label_name=validated_data['name'], user=validated_data['user'])
+        label, _ = Label.objects.get_or_create(label_name=validated_data['name'])
         return label
 
 
@@ -149,7 +146,7 @@ class LabelInfoSerializer(serializers.Serializer):
         return instance
 
     def create(self, validated_data):
-        label, created = Label.objects.get_or_create(label_name=validated_data['name'], user=validated_data['user'])
+        label, _ = Label.objects.get_or_create(label_name=validated_data['name'])
         return label
 
 

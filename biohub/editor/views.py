@@ -1,4 +1,3 @@
-from django.db.models.functions import TruncMonth
 from django.http import HttpResponse, Http404
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_text
@@ -108,7 +107,7 @@ class LabelViewSet(viewsets.ModelViewSet):
         except User.DoesNotExist:
             raise Http404()
 
-        labels = Label.objects.filter(user=user)
+        labels = Label.objects.filter(reports_related__author=user)
         serializer = LabelSerializer(labels, many=True)
         return Response(serializer.data)
 

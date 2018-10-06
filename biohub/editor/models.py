@@ -89,7 +89,6 @@ class Archive(models.Model):
 
 
 class Label(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='labels', on_delete=models.CASCADE)
     label_name = models.CharField(max_length=64)
 
     def __str__(self):
