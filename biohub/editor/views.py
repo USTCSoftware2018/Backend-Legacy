@@ -16,6 +16,7 @@ from .serializers import StepSerializer, SubRoutineSerializer, ReportSerializer,
     GraphSerializer, CommentSerializer
 from .serializers import PopularReportSerializer, ReportInfoSerializer
 from .permissions import IsOwnerOrReadOnly, IsAuthorOrReadyOnly, IsOwner
+# import logging
 
 
 class StepViewSet(viewsets.ModelViewSet):
@@ -133,8 +134,11 @@ class PictureViewSet(viewsets.ModelViewSet):
                 return Response(status=status.HTTP_404_NOT_FOUND)
             if 10000 < picture.size < 409600000:
                 picture.name = uidb64 + '_' + timezone.now().strftime('%Y%m%d%H%M%S') + '_' + picture.name
+                print('reached 1')
                 image = Graph(owner=user, graph=picture)
+                print('reached 2')
                 image.save()
+                print('reached 3')
                 s = GraphSerializer(image)
                 return Response(s.data, status=status.HTTP_201_CREATED)
             else:
