@@ -1,4 +1,5 @@
 from django.http import HttpResponse, Http404
+from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_text
@@ -121,6 +122,7 @@ class PictureViewSet(viewsets.ModelViewSet):
     # permission_classes = [IsOwnerOrReadOnly]
     parser_classes = (FormParser, JSONParser, MultiPartParser, FileUploadParser)
 
+    @csrf_exempt
     def create(self, request, *args, **kwargs):
         try:
             user_pk = request.user.pk
