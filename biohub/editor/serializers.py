@@ -4,7 +4,7 @@ from django.utils.encoding import smart_text
 from rest_framework import serializers
 from biohub.accounts.models import User
 from biohub.accounts.serializers import UserInfoSerializer
-from .models import Report, Step, SubRoutine, Label, Archive, Graph
+from .models import Report, Step, SubRoutine, Label, Archive, Graph, Comment, CommentReply
 
 
 class CreatableSlugRelatedField(serializers.SlugRelatedField):
@@ -150,7 +150,7 @@ class LabelInfoSerializer(serializers.Serializer):
         return label
 
 
-class GraphSerializers(serializers.Serializer):
+class GraphSerializer(serializers.ModelSerializer):
     # url = serializers.URLField()
     pk = serializers.IntegerField(read_only=True)
     owner = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
@@ -159,3 +159,15 @@ class GraphSerializers(serializers.Serializer):
     class Meta:
         model = Graph
         fields = ('pk', 'owner', 'graph')
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    text = serializers.CharField()
+    to_report = serializers.PrimaryKeyRelatedField(queryset=Report.objects.all())
+    time = serializers.DateTimeField()
+    reply_to = serializers.PrimaryKeyRelatedField(queryset=Comment.objects.all())
+
+    class Meta:
+        model = Comment
+        field = ('user', 'text', 'to_report', 'time', 'reply_to')
