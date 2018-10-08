@@ -2,6 +2,7 @@ from django.http import HttpResponse, Http404
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_text
 from django.conf import settings
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser, FileUploadParser
 import json
 from django.utils import timezone
 from rest_framework import viewsets, decorators, pagination, status
@@ -116,6 +117,7 @@ class PictureViewSet(viewsets.ModelViewSet):
     serializer_class = GraphSerializers
     queryset = Graph.objects.all()
     # permission_classes = [IsOwnerOrReadOnly]
+    parser_classes = (FormParser, JSONParser, MultiPartParser, FileUploadParser)
 
     def create(self, request, *args, **kwargs):
         try:
@@ -133,7 +135,7 @@ class PictureViewSet(viewsets.ModelViewSet):
                 image = Graph(owner=user, graph=picture)
                 image.save()
                 s = GraphSerializers(image)
-                return Response(s.data, status=status.HTTP_200_OK)
+                return Response(s.data, status=status.HTTP_201_CREATED)
             else:
                 return Response(status=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE)
         else:
