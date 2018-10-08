@@ -142,7 +142,7 @@ class PictureViewSet(viewsets.ModelViewSet):
                 s = GraphSerializer(image)
                 return Response(s.data, status=status.HTTP_201_CREATED)
             else:
-                return Response(status=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE)
+                return Response(status=status.HTTP_411_LENGTH_REQUIRED)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
