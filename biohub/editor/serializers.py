@@ -4,7 +4,7 @@ from django.utils.encoding import smart_text
 from rest_framework import serializers
 from biohub.accounts.models import User
 from biohub.accounts.serializers import UserInfoSerializer
-from .models import Report, Step, SubRoutine, Label, Archive, Graph, Comment, CommentReply
+from .models import Report, Step, SubRoutine, Label, Archive, Graph, Comment
 
 
 class CreatableSlugRelatedField(serializers.SlugRelatedField):
