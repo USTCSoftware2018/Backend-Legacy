@@ -159,7 +159,7 @@ class GraphSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Graph
-        fields = ('graph', 'pk')
+        fields = ('graph', 'pk', 'name')
 
 
 class CommentSerializer(serializers.ModelSerializer):
