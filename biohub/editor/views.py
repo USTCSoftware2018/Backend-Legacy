@@ -1,4 +1,5 @@
 from django.http import HttpResponse, Http404
+import django.core.files.uploadhandler
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -142,7 +143,7 @@ class PictureViewSet(viewsets.ModelViewSet):
                 s = GraphSerializer(image)
                 return Response(s.data, status=status.HTTP_201_CREATED)
             else:
-                return Response(status=status.HTTP_411_LENGTH_REQUIRED)
+                return Response(status=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
