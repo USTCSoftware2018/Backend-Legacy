@@ -99,6 +99,9 @@ class Graph(models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='report_graphs')
     graph = models.ImageField(upload_to='report_graph', null=True, blank=True)
 
+    def get_name(self):
+        return self.graph.name
+
 
 class Comment(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

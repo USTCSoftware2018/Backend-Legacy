@@ -152,13 +152,14 @@ class LabelInfoSerializer(serializers.Serializer):
 
 class GraphSerializer(serializers.ModelSerializer):
     # url = serializers.URLField()
-    pk = serializers.IntegerField(read_only=True)
-    owner = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    # pk = serializers.IntegerField(read_only=True)
+    # owner = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
     graph = serializers.ImageField()
+    name = serializers.CharField(source='get_name')
 
     class Meta:
         model = Graph
-        fields = ('pk', 'owner', 'graph')
+        fields = ('graph',)
 
 
 class CommentSerializer(serializers.ModelSerializer):
