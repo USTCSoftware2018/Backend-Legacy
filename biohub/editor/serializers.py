@@ -4,28 +4,41 @@ from django.utils.encoding import smart_text
 from rest_framework import serializers
 from biohub.accounts.models import User
 from biohub.accounts.serializers import UserInfoSerializer
-from .models import Report, Step, SubRoutine, Label, Archive, Graph, Comment, CommentReply
+from .models import Report, Step, SubRoutine, Label, Archive, Graph, Comment
 
 
-class CreatableSlugRelatedField(serializers.SlugRelatedField):
+class LabelInfoSerializer(serializers.Serializer):
     """
-    This is a custom SlugRelatedField that automatically create a field instead of
-    signalling an error.
+    Only id, name, report_count are provided.
     """
+    id = serializers.IntegerField(read_only=True)
+    name = serializers.CharField()
+
     def to_internal_value(self, data):
-        try:
-            return self.get_queryset().get_or_create(**{self.slug_field: data})[0]
-        except ObjectDoesNotExist:
-            self.fail('does_not_exist', slug_name=self.slug_field, value=smart_text(data))
-        except (TypeError, ValueError):
-            self.fail('invalid')
+        label, _ = Label.objects.get_or_create(name=data)
+        return label
+
+    def to_representation(self, instance):
+        return {
+            'id': instance.id,
+            'name': instance.label_name,
+        }
+
+    def update(self, instance, validated_data):
+        assert (instance.id == validated_data['id'])
+        instance.label_name = validated_data['name']
+        instance.save()
+        return instance
+
+    def create(self, validated_data):
+        label, _ = Label.objects.get_or_create(label_name=validated_data['name'])
+        return label
 
 
 class ReportSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(slug_field='username', read_only=True,
                                           default=serializers.CurrentUserDefault())
-    label = CreatableSlugRelatedField(slug_field='label_name', many=True, required=False,
-                                      queryset=Label.objects.all())
+    label = LabelInfoSerializer(many=True, required=False)
     ntime = serializers.DateTimeField(default=serializers.CreateOnlyDefault(timezone.now()))
 
     class Meta:
@@ -121,34 +134,6 @@ class ArchiveSerializer(serializers.ModelSerializer):
     class Meta:
         model = Archive
         fields = ('id', 'date', 'reports')
-
-
-class LabelInfoSerializer(serializers.Serializer):
-    """
-    Only id, name, report_count are provided.
-    """
-    id = serializers.IntegerField(read_only=True)
-    name = serializers.CharField()
-    report_count = serializers.IntegerField(read_only=True)
-
-    def to_representation(self, instance):
-        queryset = Report.objects.filter(label=instance)
-        return {
-            'id': instance.id,
-            'name': instance.label_name,
-            'reports_count': queryset.count()
-        }
-
-    def update(self, instance, validated_data):
-        assert (instance.id == validated_data['id'])
-        instance.label_name = validated_data['name']
-        instance.save()
-        return instance
-
-    def create(self, validated_data):
-        label, _ = Label.objects.get_or_create(label_name=validated_data['name'])
-        return label
-
 
 class GraphSerializer(serializers.ModelSerializer):
     # url = serializers.URLField()

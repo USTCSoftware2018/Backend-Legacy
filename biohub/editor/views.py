@@ -12,8 +12,8 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticate
 from biohub.accounts.models import User
 from .models import Graph, SubRoutine, Step, Report, Label, Archive
 from .models import Comment
-from .serializers import StepSerializer, SubRoutineSerializer, ReportSerializer, LabelSerializer, ArchiveSerializer, \
-    GraphSerializer, CommentSerializer
+from .serializers import StepSerializer, SubRoutineSerializer, ReportSerializer, LabelSerializer, LabelInfoSerializer, \
+    ArchiveSerializer, GraphSerializer, CommentSerializer
 from .serializers import PopularReportSerializer, ReportInfoSerializer
 from .permissions import IsOwnerOrReadOnly, IsAuthorOrReadyOnly, IsOwner
 
@@ -110,7 +110,7 @@ class LabelViewSet(viewsets.ModelViewSet):
             raise Http404()
 
         labels = Label.objects.filter(reports_related__author=user)
-        serializer = LabelSerializer(labels, many=True)
+        serializer = LabelInfoSerializer(labels, many=True)
         return Response(serializer.data)
 
 

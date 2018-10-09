@@ -89,7 +89,7 @@ class Archive(models.Model):
 
 
 class Label(models.Model):
-    label_name = models.CharField(max_length=64)
+    label_name = models.CharField(max_length=64, unique=True)
 
     def __str__(self):
         return 'id:{}, name:{}'.format(self.pk, self.label_name)
