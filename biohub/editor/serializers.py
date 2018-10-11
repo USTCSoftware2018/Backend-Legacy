@@ -39,7 +39,7 @@ class LabelInfoSerializer(serializers.Serializer):
 class ReportSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(slug_field='username', read_only=True,
                                           default=serializers.CurrentUserDefault())
-    label = LabelInfoSerializer(many=True, required=False)
+    label = serializers.SlugRelatedField(slug_field='label_name', many=True, required=False)
     ntime = serializers.DateTimeField(default=serializers.CreateOnlyDefault(timezone.now()))
 
     class Meta:
