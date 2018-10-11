@@ -54,7 +54,7 @@ class ReportInfoSerializer(serializers.BaseSerializer):
     id = serializers.IntegerField()
     title = serializers.CharField()
     author = UserInfoSerializer(read_only=True)
-    labels = serializers.SlugRelatedField(slug_field='label_name', many=True, read_only=True)
+    labels = LabelInfoSerializer(many=True, read_only=True)
     abstract = serializers.CharField()
     commentsnum = serializers.IntegerField()
     likesnum = serializers.IntegerField()
