@@ -82,14 +82,20 @@ def uncollect(request):
     id = serializer.validated_data['id']
     name = serializer.validated_data['collection']
     try:
-        collection, _ = Collection.objects.get_or_create(collector=user, name=name)
+        collection = Collection.objects.get(collector=user, name=name)
         report = Report.objects.get(id=id)
         collection.reports.remove(report)
-        collection.save()
+        if collection.reports.count() == 0:
+            collection.delete()
+            return HttpResponse('{}', status=200)
+        else:
+            collection.save()
     except KeyError:
         return HttpResponse(status=400)
+    except Collection.DoesNotExist:
+        return HttpResponse('{}', status=200)
     except Report.DoesNotExist:
-        return HttpResponse('{"detail": "report with id %d does not exist"}' % id, status=404)
+        return HttpResponse('{}', status=200)
     return Response(CollectionSerializer(collection).data)
 
 
