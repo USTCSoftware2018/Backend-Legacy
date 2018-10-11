@@ -28,8 +28,12 @@ class StarViewSet(viewsets.ViewSet):
         serializer = StarRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         report_id = serializer.data['id']
-        Star.objects.get_or_create(starrer=user, starred_report_id=report_id)
-        return HttpResponse('true', status=200)
+        try:
+            report = Report.objects.get(pk=report_id)
+            Star.objects.get_or_create(starrer=user, starred_report=report)
+            return HttpResponse('true', status=200)
+        except Report.DoesNotExist:
+            return HttpResponse('{"detail": "This report does not exist"}', status=404)
 
     # Route: POST /users/favorites/unstar/
     @decorators.list_route(methods=['post'])
@@ -38,7 +42,7 @@ class StarViewSet(viewsets.ViewSet):
         serializer = StarRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         report_id = serializer.data['id']
-        queryset = Star.objects.filter(starrer=user, starred_report_id=report_id)
+        queryset = Star.objects.filter(starrer=user, starred_report__id=report_id)
         if queryset:
             queryset.delete()
         return HttpResponse('true', status=200)
