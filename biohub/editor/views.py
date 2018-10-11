@@ -103,7 +103,6 @@ class ReportViewSet(viewsets.ModelViewSet):
 class LabelViewSet(viewsets.ModelViewSet):
     queryset = Label.objects.all()
     serializer_class = LabelSerializer
-    permission_classes = [IsOwner]
 
     @decorators.api_view()
     def list_user_labels(request, user_id):
