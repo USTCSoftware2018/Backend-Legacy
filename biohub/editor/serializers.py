@@ -7,6 +7,20 @@ from biohub.accounts.serializers import UserInfoSerializer
 from .models import Report, Step, SubRoutine, Label, Archive, Graph, Comment
 
 
+class CreatableSlugRelatedField(serializers.SlugRelatedField):
+    """
+    This is a custom SlugRelatedField that automatically create a field instead of
+    signalling an error.
+    """
+    def to_internal_value(self, data):
+        try:
+            return self.get_queryset().get_or_create(**{self.slug_field: data})[0]
+        except ObjectDoesNotExist:
+            self.fail('does_not_exist', slug_name=self.slug_field, value=smart_text(data))
+        except (TypeError, ValueError):
+            self.fail('invalid')
+
+
 class LabelInfoSerializer(serializers.Serializer):
     """
     Only id, name, report_count are provided.
@@ -39,7 +53,8 @@ class LabelInfoSerializer(serializers.Serializer):
 class ReportSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(slug_field='username', read_only=True,
                                           default=serializers.CurrentUserDefault())
-    label = serializers.SlugRelatedField(slug_field='label_name', many=True, required=False)
+    label = CreatableSlugRelatedField(slug_field='label_name', many=True, required=False,
+                                      queryset=Label.objects.all())
     ntime = serializers.DateTimeField(default=serializers.CreateOnlyDefault(timezone.now()))
 
     class Meta:
