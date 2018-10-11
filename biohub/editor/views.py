@@ -67,7 +67,11 @@ class ReportViewSet(viewsets.ModelViewSet):
         paginator = pagination.PageNumberPagination()
         queryset = Report.get_popular()
         page = paginator.paginate_queryset(queryset, request)
-        serializer = ReportInfoSerializer(page, many=True)
+        if request.user and request.user.is_authenticated:
+            user = request.user
+        else:
+            user = None
+        serializer = ReportInfoSerializer(page, many=True, current_user=user)
         return paginator.get_paginated_response(serializer.data)
 
     @staticmethod
