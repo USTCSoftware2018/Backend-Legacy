@@ -43,7 +43,7 @@ class UserInfoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'avatar_url', 'username')
+        fields = ('id', 'avatar_url', 'username', 'description')
 
 
 class RegisterSerializer(serializers.ModelSerializer):
