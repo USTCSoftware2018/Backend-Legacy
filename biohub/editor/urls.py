@@ -7,6 +7,7 @@ router.register('step', views.StepViewSet, base_name='step')
 router.register('subroutine', views.SubRoutineViewSet, base_name='subroutine')
 router.register('report', views.ReportViewSet, base_name='report')
 router.register('label', views.LabelViewSet, base_name='label')
+router.register('archive', views.ArchiveViewSet, base_name='archive')
 router.register('graph', views.PictureViewSet, base_name='graph')
 
 register_api(r'^editor/', router.urls)

@@ -170,6 +170,7 @@ class ArchiveSerializer(serializers.ModelSerializer):
         model = Archive
         fields = ('id', 'date', 'reports')
 
+
 class GraphSerializer(serializers.ModelSerializer):
     # url = serializers.URLField()
     pk = serializers.IntegerField(read_only=True)

@@ -8,7 +8,7 @@ from django.conf import settings
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser, FileUploadParser
 import json
 from django.utils import timezone
-from rest_framework import viewsets, decorators, pagination, status
+from rest_framework import viewsets, decorators, pagination, status, mixins
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from biohub.accounts.models import User
@@ -120,6 +120,14 @@ class LabelViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
+class ArchiveViewSet(viewsets.ModelViewSet):
+    queryset = Archive.objects.all()
+    serializer_class = ArchiveSerializer
+
+    def list(self, request, **kwargs):
+        return ReportViewSet.get_user_archives(request, request.user.id)
+
+
 class PictureViewSet(viewsets.ModelViewSet):
     serializer_class = GraphSerializer
     queryset = Graph.objects.all()
@@ -149,7 +157,7 @@ class PictureViewSet(viewsets.ModelViewSet):
                 s = GraphSerializer(image)
                 return Response(s.data, status=status.HTTP_201_CREATED)
             else:
-                return Response(status=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE)
+                return Response(status=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
