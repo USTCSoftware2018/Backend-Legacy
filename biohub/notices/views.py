@@ -57,10 +57,32 @@ class NoticeViewSet(
         return self.get_paginated_response(NoticeSerializer(page, many=True).data)
 
     @decorators.list_route(['GET'])
+    def has_new_feeds(self, request, *args, **kwargs):
+        """
+        Check if there is a new feed.
+        """
+        n_feeds = self.get_queryset().filter(category__startswith='Following', has_read=False).count()
+        return Response({
+            'count': n_feeds
+        })
+
+    @decorators.list_route(['GET'])
     def my(self, request, *args, **kwargs):
         """
         Notifications sent specifically to the current user.
         """
-        qs = self.get_queryset().filter(~Q(category__startswith='Following')).all()
+        qs = self.get_queryset().filter(~Q(category__startswith='Following'), has_read=False).all()
         page = self.paginate_queryset(qs)
         return self.get_paginated_response(NoticeSerializer(page, many=True).data)
+
+    @decorators.list_route(['GET'])
+    def has_new_notifications(self, request, *args, **kwargs):
+        """
+        Check if there is a new notification.
+        """
+        qs = self.get_queryset().filter(~Q(category__startswith='Following'), has_read=False).order_by('-created')
+        notice = qs.first()
+        return Response({
+            'count': qs.count(),
+            'latest': NoticeSerializer(notice).data
+        })
