@@ -98,7 +98,7 @@ class ReportInfoSerializer(serializers.BaseSerializer):
 
 
 class PopularReportSerializer(serializers.ModelSerializer):
-    praises = serializers.IntegerField(source='get_points')
+    praises = serializers.IntegerField(source='star_count')
 
     class Meta:
         model = Report
