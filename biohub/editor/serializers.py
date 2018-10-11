@@ -22,6 +22,7 @@ class LabelInfoSerializer(serializers.Serializer):
         return {
             'id': instance.id,
             'name': instance.label_name,
+            'report_count': instance.reports_related.count()
         }
 
     def update(self, instance, validated_data):
