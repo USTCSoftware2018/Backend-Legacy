@@ -73,6 +73,26 @@ def collect(request):
     return Response(CollectionSerializer(collection).data)
 
 
+@decorators.api_view(['post'])
+@decorators.permission_classes([permissions.IsAuthenticated])
+def uncollect(request):
+    user = request.user
+    serializer = CollectRequestSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    id = serializer.validated_data['id']
+    name = serializer.validated_data['collection']
+    try:
+        collection, _ = Collection.objects.get_or_create(collector=user, name=name)
+        report = Report.objects.get(id=id)
+        collection.reports.remove(report)
+        collection.save()
+    except KeyError:
+        return HttpResponse(status=400)
+    except Report.DoesNotExist:
+        return HttpResponse('{"detail": "report with id %d does not exist"}' % id, status=404)
+    return Response(CollectionSerializer(collection).data)
+
+
 class ActiveUsersViewSet(generics.ListAPIView):
     serializer_class = UserInfoSerializer
     pagination_class = pagination.PageNumberPagination
