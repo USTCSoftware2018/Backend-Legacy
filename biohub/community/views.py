@@ -107,6 +107,9 @@ class ActiveUsersViewSet(generics.ListAPIView):
     serializer_class = UserInfoSerializer
     pagination_class = pagination.PageNumberPagination
 
+    def get_serializer(self, *args, **kwargs):
+        return UserInfoSerializer(*args, current_user=self.request.user, **kwargs)
+
     def get_queryset(self):
         sorter = F('report') * 10 + F('comment') * 2 + F('followers')
         users = User.objects.annotate(points=Count(sorter)).order_by('-points')
