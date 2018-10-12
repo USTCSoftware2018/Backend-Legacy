@@ -88,7 +88,6 @@ class ReportInfoSerializer(serializers.BaseSerializer):
         if not self.current_user:
             return False
 
-        print(instance.star_set)
         return instance.star_set.filter(starrer=self.current_user).count() >= 1
 
     def iscollected(self, instance):
