@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from django.db.models import F
+from django.db.models import F, Count
 from rest_framework import decorators, viewsets, permissions, generics, pagination, mixins
 from rest_framework.response import Response
 
@@ -109,5 +109,5 @@ class ActiveUsersViewSet(generics.ListAPIView):
 
     def get_queryset(self):
         sorter = F('report') * 10 + F('comment') * 2 + F('followers')
-        sorter = sorter.desc()
-        return User.objects.order_by(sorter)
+        users = User.objects.annotate(points=Count(sorter)).order_by('-points')
+        return users

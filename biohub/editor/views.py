@@ -115,7 +115,7 @@ class LabelViewSet(viewsets.ModelViewSet):
         except User.DoesNotExist:
             raise Http404()
 
-        labels = Label.objects.filter(reports_related__author=user)
+        labels = Label.objects.filter(reports_related__author=user).distinct()
         serializer = LabelInfoSerializer(labels, many=True)
         return Response(serializer.data)
 
