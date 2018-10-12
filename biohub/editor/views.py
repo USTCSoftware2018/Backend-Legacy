@@ -15,7 +15,7 @@ from biohub.accounts.models import User
 from .models import Graph, SubRoutine, Step, Report, Label, Archive
 from .models import Comment
 from .serializers import StepSerializer, SubRoutineSerializer, ReportSerializer, LabelSerializer, LabelInfoSerializer, \
-    ArchiveSerializer, GraphSerializer, CommentSerializer
+    ArchiveSerializer, ArchiveInfoSerializer, GraphSerializer, CommentSerializer
 from .serializers import PopularReportSerializer, ReportInfoSerializer
 from .permissions import IsOwnerOrReadOnly, IsAuthorOrReadyOnly, IsOwner
 # import logging
@@ -100,7 +100,7 @@ class ReportViewSet(viewsets.ModelViewSet):
             }, status=404)
 
         archives = Archive.objects.filter(user=user)
-        serializer = ArchiveSerializer(archives, many=True)
+        serializer = ArchiveInfoSerializer(archives, many=True)
         return Response(serializer.data)
 
 

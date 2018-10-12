@@ -170,6 +170,21 @@ class ArchiveSerializer(serializers.ModelSerializer):
         fields = ('id', 'date', 'reports')
 
 
+class ArchiveInfoSerializer(serializers.ModelSerializer):
+    report_count = serializers.IntegerField()
+
+    def to_representation(self, instance: Archive):
+        return {
+            'id': instance.id,
+            'date': instance.date,
+            'report_count': instance.reports.count()
+        }
+
+    class Meta:
+        model = Archive
+        fields = ('id', 'date', 'report_count')
+
+
 class GraphSerializer(serializers.ModelSerializer):
     # url = serializers.URLField()
     pk = serializers.IntegerField(read_only=True)
