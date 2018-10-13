@@ -54,6 +54,7 @@ class NoticeViewSet(
         """
         qs = self.get_queryset().filter(category__startswith='Following').all()
         page = self.paginate_queryset(qs)
+        qs.mark_read()  # See issue 40
         return self.get_paginated_response(NoticeSerializer(page, many=True).data)
 
     @decorators.list_route(['GET'])
@@ -73,6 +74,7 @@ class NoticeViewSet(
         """
         qs = self.get_queryset().filter(~Q(category__startswith='Following'), has_read=False).all()
         page = self.paginate_queryset(qs)
+        qs.mark_read()  # See issue 40
         return self.get_paginated_response(NoticeSerializer(page, many=True).data)
 
     @decorators.list_route(['GET'])
@@ -80,7 +82,7 @@ class NoticeViewSet(
         """
         Check if there is a new notification.
         """
-        qs = self.get_queryset().filter(~Q(category__startswith='Following'), has_read=False).order_by('-created')
+        qs = self.get_queryset().filter(~Q(category__startswith='Following'), has_read=False)
         notice = qs.first()
         return Response({
             'count': qs.count(),
