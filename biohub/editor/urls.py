@@ -1,4 +1,5 @@
 from rest_framework.routers import DefaultRouter
+from rest_framework_nested import routers
 from biohub.core.routes import register_api, register_default, url
 from . import views
 
@@ -10,6 +11,9 @@ router.register('label', views.LabelViewSet, base_name='label')
 router.register('archive', views.ArchiveViewSet, base_name='archive')
 router.register('graph', views.PictureViewSet, base_name='graph')
 router.register('comment', views.CommentPostSingleViewSet, base_name='comment')
+
+comment_router = routers.NestedSimpleRouter(router, 'comment', lookup='comment')
+comment_router.register(r'nameservers', views.CommentPostSingleViewSet, base_name='domain-comment')
 
 register_api(r'^editor/', router.urls)
 register_api(r'^', [
