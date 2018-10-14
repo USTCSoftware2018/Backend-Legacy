@@ -198,7 +198,7 @@ class CommentPostSingleViewSet(viewsets.ModelViewSet):
     # @decorators.list_route(methods=['get'])
     @staticmethod
     @decorators.api_view(['get'])
-    def get_report_comment(self, request, report_pk=None):
+    def get_report_comment(request, report_pk=None):
         report = get_object_or_404(Report, pk=report_pk)
         _list = Comment.objects.filter(to_report=report)
         list_s = CommentSerializer(_list, many=True)
