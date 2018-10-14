@@ -249,7 +249,7 @@ class CommentPostSingleViewSet(viewsets.ModelViewSet):
         report = get_object_or_404(Report, pk=report_pk)
         _list = Comment.objects.filter(to_report=report)
         list_s = CommentSerializer(_list, many=True)
-        return Response(data=list_s, status=status.HTTP_200_OK)
+        return Response(data=list_s.data, status=status.HTTP_200_OK)
 
 # class CommentReportViewSet(viewsets.)
 
