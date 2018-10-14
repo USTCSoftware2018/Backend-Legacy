@@ -13,7 +13,7 @@ router.register('graph', views.PictureViewSet, base_name='graph')
 router.register('comment', views.CommentPostSingleViewSet, base_name='comment')
 
 comment_router = routers.NestedSimpleRouter(router, 'comment', lookup='comment')
-comment_router.register(r'nameservers', views.CommentPostSingleViewSet, base_name='domain-comment')
+# comment_router.register(r'nameservers', views.CommentPostSingleViewSet, base_name='domain-comment')
 
 register_api(r'^editor/', router.urls)
 register_api(r'^editor/', comment_router.urls)
