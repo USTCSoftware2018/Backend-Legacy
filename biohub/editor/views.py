@@ -219,7 +219,7 @@ class CommentPostSingleViewSet(viewsets.ModelViewSet):
         message = comment['message']  # message
         to_comment = comment['to_comment']  # comment_pk
         # raise KeyError('reached')
-        raise KeyError(report)
+        # raise KeyError(report)
         if user is not None and user.is_active:
             if to_comment == -1:
                 new_comment = Comment()
