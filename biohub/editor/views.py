@@ -151,7 +151,7 @@ class PictureViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
-class CommentPostSingle(viewsets.ModelViewSet):
+class CommentPostSingleViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     queryset = Comment.objects.all()
 

@@ -8,6 +8,7 @@ router.register('subroutine', views.SubRoutineViewSet, base_name='subroutine')
 router.register('report', views.ReportViewSet, base_name='report')
 router.register('label', views.LabelViewSet, base_name='label')
 router.register('graph', views.PictureViewSet, base_name='graph')
+router.register('comment', views.CommentPostSingleViewSet, base_name='comment')
 
 register_api(r'^editor/', router.urls)
 register_api(r'^', [
