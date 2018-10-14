@@ -210,18 +210,16 @@ class CommentPostSingleViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
 
     def create(self, request, *args, **kwargs):
-        # comment_json = request.POST.body.decode()
         comment_json = request.body.decode()
         comment = json.loads(comment_json)
-        # raise KeyError(comment)
         report_pk = comment['to_report']
-        report = Report.objects.get(pk=report_pk)
+        # report = Report.objects.get(pk=report_pk)
+        report = get_object_or_404(Report, pk=report_pk)
         user = request.user
         message = comment['message']  # message
         to_comment = comment['to_comment']  # comment_pk
-
+        raise KeyError('reached')
         if user is not None and user.is_active:
-
             if to_comment == -1:
                 new_comment = Comment()
                 new_comment.user = user
@@ -229,7 +227,7 @@ class CommentPostSingleViewSet(viewsets.ModelViewSet):
                 new_comment.to_report = report
                 new_comment.reply_to = None
                 new_comment.save()
-                raise KeyError('reached')
+                # raise KeyError('reached')
 
             else:
                 new_comment = Comment()
