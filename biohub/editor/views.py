@@ -210,7 +210,8 @@ class CommentPostSingleViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
 
     def create(self, request, *args, **kwargs):
-        comment_json = request.POST.body.decode()
+        # comment_json = request.POST.body.decode()
+        comment_json = request.body
         comment = json.loads(comment_json)
         report_pk = comment['to_report']
         report = Report.objects.get(pk=report_pk)
@@ -240,7 +241,10 @@ class CommentPostSingleViewSet(viewsets.ModelViewSet):
             return Response(data=s.data, status=status.HTTP_200_OK)
 
         else:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            # data = {
+            #     'detail': 'Not log in'
+            # }
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
     # @decorators.list_route(methods=['get'])
     @staticmethod
