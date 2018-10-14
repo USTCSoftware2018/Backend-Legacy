@@ -195,7 +195,9 @@ class CommentPostSingleViewSet(viewsets.ModelViewSet):
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-    @decorators.list_route(methods=['get'])
+    # @decorators.list_route(methods=['get'])
+    @staticmethod
+    @decorators.api_view(['get'])
     def get_report_comment(self, request, report_pk=None):
         report = get_object_or_404(Report, pk=report_pk)
         _list = Comment.objects.filter(to_report=report)

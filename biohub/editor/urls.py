@@ -23,4 +23,6 @@ register_api(r'^', [
     url(r'^users/popular-reports-list/(?P<user_id>[0-9]+)/?$', views.ReportViewSet.get_user_popular_reports),
     url(r'^users/reports/archives/(?P<user_id>[0-9]+)/?$', views.ReportViewSet.get_user_archives),
     url(r'^users/reports/(?P<user_id>[0-9]+)/?$', views.ReportViewSet.list_user_reports, name='list_reports'),
+    url(r'^editor/comment/get_report_comment/(?P<report_pk>[0-9]+)/?$',
+        views.CommentPostSingleViewSet.get_report_comment, name='get_report_comment'),
 ], '')
