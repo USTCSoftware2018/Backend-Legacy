@@ -213,7 +213,7 @@ class CommentPostSingleViewSet(viewsets.ModelViewSet):
         # comment_json = request.POST.body.decode()
         comment_json = request.body.decode()
         comment = json.loads(comment_json)
-        raise KeyError(comment)
+        # raise KeyError(comment)
         report_pk = comment['to_report']
         report = Report.objects.get(pk=report_pk)
         user = request.user
@@ -229,6 +229,7 @@ class CommentPostSingleViewSet(viewsets.ModelViewSet):
                 new_comment.to_report = report
                 new_comment.reply_to = None
                 new_comment.save()
+                raise KeyError('reached')
 
             else:
                 new_comment = Comment()
