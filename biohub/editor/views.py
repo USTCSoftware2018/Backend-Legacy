@@ -207,42 +207,42 @@ class CommentPostSingleViewSet(viewsets.ModelViewSet):
 # class CommentReportViewSet(viewsets.)
 
 
-def comment_post_single(request):
-
-    body = {
-        'to_report': 366,  # report id
-        'message': "I find it funny",  # comment body
-        'to_comment': 32,  # comment id, "to_comment" = -1 if don't have superior one
-    }
-
-    if request.method == 'POST':
-        comment_json = request.POST.body.decode()
-        comment = json.loads(comment_json)
-        report_pk = comment['to_report']
-        report = Report.objects.get(pk=report_pk)
-        user = request.user
-        message = comment['message']  # message
-        to_comment = comment['to_comment']  # comment_pk
-
-        if user is not None and user.is_active:
-
-            if to_comment == -1:
-                new_comment = Comment()
-                new_comment.user = user
-                new_comment.text = message
-                new_comment.to_report = report
-                new_comment.reply_to = None
-                new_comment.save()
-
-            else:
-                new_comment = Comment()
-                new_comment.user = user
-                new_comment.text = message
-                new_comment.to_report = report
-                new_comment.reply_to = Comment.objects.get(pk=to_comment)
-                new_comment.save()
-
-        else:
-            pass
-    else:
-        pass
+# def comment_post_single(request):
+#
+#     body = {
+#         'to_report': 366,  # report id
+#         'message': "I find it funny",  # comment body
+#         'to_comment': 32,  # comment id, "to_comment" = -1 if don't have superior one
+#     }
+#
+#     if request.method == 'POST':
+#         comment_json = request.POST.body.decode()
+#         comment = json.loads(comment_json)
+#         report_pk = comment['to_report']
+#         report = Report.objects.get(pk=report_pk)
+#         user = request.user
+#         message = comment['message']  # message
+#         to_comment = comment['to_comment']  # comment_pk
+#
+#         if user is not None and user.is_active:
+#
+#             if to_comment == -1:
+#                 new_comment = Comment()
+#                 new_comment.user = user
+#                 new_comment.text = message
+#                 new_comment.to_report = report
+#                 new_comment.reply_to = None
+#                 new_comment.save()
+#
+#             else:
+#                 new_comment = Comment()
+#                 new_comment.user = user
+#                 new_comment.text = message
+#                 new_comment.to_report = report
+#                 new_comment.reply_to = Comment.objects.get(pk=to_comment)
+#                 new_comment.save()
+#
+#         else:
+#             pass
+#     else:
+#         pass

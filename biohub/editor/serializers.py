@@ -206,4 +206,4 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        field = ('user', 'text', 'to_report', 'time', 'reply_to')
+        fields = ('user', 'text', 'to_report', 'time', 'reply_to')
