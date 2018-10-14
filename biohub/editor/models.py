@@ -6,6 +6,11 @@ from django.contrib.contenttypes.fields import GenericRelation
 from biohub.accounts.models import User
 
 
+class UserVariable(models.Model):
+    user = models.OneToOneField(User)
+    variables = models.TextField(null=True)
+
+
 class Report(models.Model):
 
     title = models.CharField(max_length=256)

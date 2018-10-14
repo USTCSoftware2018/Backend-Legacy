@@ -12,13 +12,60 @@ from rest_framework import viewsets, decorators, pagination, status, mixins
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from biohub.accounts.models import User
-from .models import Graph, SubRoutine, Step, Report, Label, Archive
+from .models import Graph, SubRoutine, Step, Report, Label, Archive, UserVariable
 from .models import Comment
 from .serializers import StepSerializer, SubRoutineSerializer, ReportSerializer, LabelSerializer, LabelInfoSerializer, \
     ArchiveSerializer, ArchiveInfoSerializer, GraphSerializer, CommentSerializer
 from .serializers import PopularReportSerializer, ReportInfoSerializer
 from .permissions import IsOwnerOrReadOnly, IsAuthorOrReadyOnly, IsOwner
 # import logging
+
+
+class UserVariableViewSet(viewsets.GenericViewSet):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def create(self, request, *args, **kwargs):
+        vars = request.data.get('variables', None)
+        data = json.dumps(vars)
+        user = request.user
+        o, _ = UserVariable.objects.get_or_create(user=user)
+        o.variables = data
+        o.save()
+        return Response({'variables': vars}, status=201)
+
+    def update(self, request, *args, **kwargs):
+        to_update = request.data.get('variables', None)
+        user = request.user
+        instance, _ = UserVariable.objects.get_or_create(user=user)
+        current = json.loads(instance.variables)
+
+        if not to_update:
+            return Response(dict, status=200)
+
+        to_update = json.loads(to_update)
+
+        for k, v in to_update:
+            current[k] = v
+
+        instance.variables = json.dumps(current)
+        instance.save()
+
+        return Response({'variables': current})
+
+
+    def list(self, request, *args, **kwargs):
+        user = request.user
+        try:
+            o = UserVariable.objects.get(user=user)
+            data = o.variables
+        except UserVariable.DoesNotExist:
+            data = '{}'
+        if data is None:
+            data = '{}'
+
+        return Response({
+            'variables': json.loads(data)
+        })
 
 
 class StepViewSet(viewsets.ModelViewSet):

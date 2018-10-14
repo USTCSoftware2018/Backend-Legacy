@@ -10,6 +10,7 @@ router.register('report', views.ReportViewSet, base_name='report')
 router.register('label', views.LabelViewSet, base_name='label')
 router.register('archive', views.ArchiveViewSet, base_name='archive')
 router.register('graph', views.PictureViewSet, base_name='graph')
+router.register('vars', views.UserVariableViewSet, base_name='vars')
 router.register('comment', views.CommentPostSingleViewSet, base_name='comment')
 
 comment_router = routers.NestedSimpleRouter(router, 'comment', lookup='comment')
