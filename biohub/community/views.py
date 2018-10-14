@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from django.db.models import F
+from django.db.models import F, Count
 from rest_framework import decorators, viewsets, permissions, generics, pagination, mixins
 from rest_framework.response import Response
 
@@ -28,8 +28,12 @@ class StarViewSet(viewsets.ViewSet):
         serializer = StarRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         report_id = serializer.data['id']
-        Star.objects.get_or_create(starrer=user, starred_report_id=report_id)
-        return HttpResponse('true', status=200)
+        try:
+            report = Report.objects.get(pk=report_id)
+            Star.objects.get_or_create(starrer=user, starred_report=report)
+            return HttpResponse('true', status=200)
+        except Report.DoesNotExist:
+            return HttpResponse('{"detail": "This report does not exist"}', status=404)
 
     # Route: POST /users/favorites/unstar/
     @decorators.list_route(methods=['post'])
@@ -38,7 +42,7 @@ class StarViewSet(viewsets.ViewSet):
         serializer = StarRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         report_id = serializer.data['id']
-        queryset = Star.objects.filter(starrer=user, starred_report_id=report_id)
+        queryset = Star.objects.filter(starrer=user, starred_report__id=report_id)
         if queryset:
             queryset.delete()
         return HttpResponse('true', status=200)
@@ -73,11 +77,40 @@ def collect(request):
     return Response(CollectionSerializer(collection).data)
 
 
+@decorators.api_view(['post'])
+@decorators.permission_classes([permissions.IsAuthenticated])
+def uncollect(request):
+    user = request.user
+    serializer = CollectRequestSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    id = serializer.validated_data['id']
+    name = serializer.validated_data['collection']
+    try:
+        collection = Collection.objects.get(collector=user, name=name)
+        report = Report.objects.get(id=id)
+        collection.reports.remove(report)
+        if collection.reports.count() == 0:
+            collection.delete()
+            return HttpResponse('{}', status=200)
+        else:
+            collection.save()
+    except KeyError:
+        return HttpResponse(status=400)
+    except Collection.DoesNotExist:
+        return HttpResponse('{}', status=200)
+    except Report.DoesNotExist:
+        return HttpResponse('{}', status=200)
+    return Response(CollectionSerializer(collection).data)
+
+
 class ActiveUsersViewSet(generics.ListAPIView):
     serializer_class = UserInfoSerializer
     pagination_class = pagination.PageNumberPagination
 
+    def get_serializer(self, *args, **kwargs):
+        return UserInfoSerializer(*args, current_user=self.request.user, **kwargs)
+
     def get_queryset(self):
         sorter = F('report') * 10 + F('comment') * 2 + F('followers')
-        sorter = sorter.desc()
-        return User.objects.order_by(sorter)
+        users = User.objects.annotate(points=Count(sorter)).order_by('-points')
+        return users

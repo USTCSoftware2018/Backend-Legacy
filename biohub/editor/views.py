@@ -8,14 +8,14 @@ from django.conf import settings
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser, FileUploadParser
 import json
 from django.utils import timezone
-from rest_framework import viewsets, decorators, pagination, status
+from rest_framework import viewsets, decorators, pagination, status, mixins
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from biohub.accounts.models import User
 from .models import Graph, SubRoutine, Step, Report, Label, Archive
 from .models import Comment
 from .serializers import StepSerializer, SubRoutineSerializer, ReportSerializer, LabelSerializer, LabelInfoSerializer, \
-    ArchiveSerializer, GraphSerializer, CommentSerializer
+    ArchiveSerializer, ArchiveInfoSerializer, GraphSerializer, CommentSerializer
 from .serializers import PopularReportSerializer, ReportInfoSerializer
 from .permissions import IsOwnerOrReadOnly, IsAuthorOrReadyOnly, IsOwner
 # import logging
@@ -67,7 +67,11 @@ class ReportViewSet(viewsets.ModelViewSet):
         paginator = pagination.PageNumberPagination()
         queryset = Report.get_popular()
         page = paginator.paginate_queryset(queryset, request)
-        serializer = ReportInfoSerializer(page, many=True)
+        if request.user and request.user.is_authenticated:
+            user = request.user
+        else:
+            user = None
+        serializer = ReportInfoSerializer(page, many=True, current_user=user)
         return paginator.get_paginated_response(serializer.data)
 
     @staticmethod
@@ -96,14 +100,13 @@ class ReportViewSet(viewsets.ModelViewSet):
             }, status=404)
 
         archives = Archive.objects.filter(user=user)
-        serializer = ArchiveSerializer(archives, many=True)
+        serializer = ArchiveInfoSerializer(archives, many=True)
         return Response(serializer.data)
 
 
 class LabelViewSet(viewsets.ModelViewSet):
     queryset = Label.objects.all()
     serializer_class = LabelSerializer
-    permission_classes = [IsOwner]
 
     @decorators.api_view()
     def list_user_labels(request, user_id):
@@ -112,9 +115,17 @@ class LabelViewSet(viewsets.ModelViewSet):
         except User.DoesNotExist:
             raise Http404()
 
-        labels = Label.objects.filter(reports_related__author=user)
+        labels = Label.objects.filter(reports_related__author=user).distinct()
         serializer = LabelInfoSerializer(labels, many=True)
         return Response(serializer.data)
+
+
+class ArchiveViewSet(viewsets.ModelViewSet):
+    queryset = Archive.objects.all()
+    serializer_class = ArchiveSerializer
+
+    def list(self, request, **kwargs):
+        return ReportViewSet.get_user_archives(request, request.user.id)
 
 
 class PictureViewSet(viewsets.ModelViewSet):
@@ -135,18 +146,14 @@ class PictureViewSet(viewsets.ModelViewSet):
             picture = request.FILES.get('graph') or request.FILES.get('file')
             if picture is None:
                 return Response(status=status.HTTP_404_NOT_FOUND)
-            print(picture.size)
             if 10000 < picture.size < 409600000:
                 picture.name = uidb64 + '_' + timezone.now().strftime('%Y%m%d%H%M%S') + '_' + picture.name
-                print('reached 1')
                 image = Graph(owner=user, graph=picture)
-                print('reached 2')
                 image.save()
-                print('reached 3')
                 s = GraphSerializer(image)
                 return Response(s.data, status=status.HTTP_201_CREATED)
             else:
-                return Response(status=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE)
+                return Response(status=status.HTTP_414_REQUEST_URI_TOO_LONG)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 

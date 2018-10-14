@@ -160,9 +160,11 @@ class User(AbstractBaseUser):
     def get_stat(self):
         from biohub.biobrick.models import StarredUser
         from biohub.forum.models import Experience
+        from biohub.editor.models import Report
         return {
             'follower_count': self.followers.count(),
             'following_count': User.followers.through.objects.filter(to_user_id=self.id).count(),
             'star_count': StarredUser.objects.filter(user=self).count(),
-            'experience_count': Experience.objects.filter(author=self).count()
+            'experience_count': Experience.objects.filter(author=self).count(),
+            'report_count': Report.objects.filter(author=self).count()
         }

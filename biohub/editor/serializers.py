@@ -1,10 +1,24 @@
 from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.encoding import smart_text
-from rest_framework import serializers
+from rest_framework import serializers, fields
 from biohub.accounts.models import User
 from biohub.accounts.serializers import UserInfoSerializer
 from .models import Report, Step, SubRoutine, Label, Archive, Graph, Comment
+
+
+class CreatableSlugRelatedField(serializers.SlugRelatedField):
+    """
+    This is a custom SlugRelatedField that automatically create a field instead of
+    signalling an error.
+    """
+    def to_internal_value(self, data):
+        try:
+            return self.get_queryset().get_or_create(**{self.slug_field: data})[0]
+        except ObjectDoesNotExist:
+            self.fail('does_not_exist', slug_name=self.slug_field, value=smart_text(data))
+        except (TypeError, ValueError):
+            self.fail('invalid')
 
 
 class LabelInfoSerializer(serializers.Serializer):
@@ -22,6 +36,7 @@ class LabelInfoSerializer(serializers.Serializer):
         return {
             'id': instance.id,
             'name': instance.label_name,
+            'report_count': instance.reports_related.count()
         }
 
     def update(self, instance, validated_data):
@@ -38,7 +53,8 @@ class LabelInfoSerializer(serializers.Serializer):
 class ReportSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(slug_field='username', read_only=True,
                                           default=serializers.CurrentUserDefault())
-    label = LabelInfoSerializer(many=True, required=False)
+    label = CreatableSlugRelatedField(slug_field='label_name', many=True, required=False,
+                                      queryset=Label.objects.all())
     ntime = serializers.DateTimeField(default=serializers.CreateOnlyDefault(timezone.now()))
 
     class Meta:
@@ -53,16 +69,32 @@ class ReportInfoSerializer(serializers.BaseSerializer):
     id = serializers.IntegerField()
     title = serializers.CharField()
     author = UserInfoSerializer(read_only=True)
-    labels = serializers.SlugRelatedField(slug_field='label_name', many=True, read_only=True)
+    labels = LabelInfoSerializer(many=True, read_only=True)
     abstract = serializers.CharField()
     commentsnum = serializers.IntegerField()
     likesnum = serializers.IntegerField()
+
+    def __init__(self, instance=None, data=fields.empty, current_user=None, **kwargs):
+        self.current_user = current_user
+        super().__init__(instance, data, **kwargs)
 
     def to_internal_value(self, data):
         try:
             return Report.objects.get(id=int(data))
         except:
             return Report.objects.get(**data)
+
+    def isliked(self, instance):
+        if not self.current_user:
+            return False
+
+        return instance.star_set.filter(starrer=self.current_user).count() >= 1
+
+    def iscollected(self, instance):
+        if not self.current_user:
+            return False
+
+        return instance.collection_set.filter(collector=self.current_user).count() >= 1
 
     def to_representation(self, instance):
         cls = ReportInfoSerializer
@@ -73,12 +105,14 @@ class ReportInfoSerializer(serializers.BaseSerializer):
             'labels': cls.labels.to_representation(instance.label.all()),
             'abstract': instance.introduction,
             'commentsnum': instance.comments.count(),
-            'likesnum': instance.star_set.count()
+            'likesnum': instance.star_set.count(),
+            'isliked': self.isliked(instance),
+            'iscollected': self.iscollected(instance)
         }
 
 
 class PopularReportSerializer(serializers.ModelSerializer):
-    praises = serializers.IntegerField(source='get_points')
+    praises = serializers.IntegerField(source='star_count')
 
     class Meta:
         model = Report
@@ -134,6 +168,22 @@ class ArchiveSerializer(serializers.ModelSerializer):
     class Meta:
         model = Archive
         fields = ('id', 'date', 'reports')
+
+
+class ArchiveInfoSerializer(serializers.ModelSerializer):
+    report_count = serializers.IntegerField()
+
+    def to_representation(self, instance: Archive):
+        return {
+            'id': instance.id,
+            'date': instance.date,
+            'report_count': instance.reports.count()
+        }
+
+    class Meta:
+        model = Archive
+        fields = ('id', 'date', 'report_count')
+
 
 class GraphSerializer(serializers.ModelSerializer):
     # url = serializers.URLField()

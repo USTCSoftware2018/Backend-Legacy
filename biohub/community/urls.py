@@ -9,5 +9,6 @@ router.register(r'users/collections', views.CollectionViewSet, base_name='collec
 # Place your route definition here.
 register_api(r'^', [
     url(r'^users/collect/?$', views.collect, name='collect'),
+    url(r'^users/uncollect/?', views.uncollect, name='uncollect'),
     url(r'^active-users/?$', views.ActiveUsersViewSet.as_view(), name='active-users')
 ] + router.urls, 'community')

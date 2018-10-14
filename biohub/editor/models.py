@@ -45,6 +45,9 @@ class Report(models.Model):
     def get_points(self):
         return self.views + self.star_set.count() * 2 + self.comments.count() * 2
 
+    def star_count(self):
+        return self.star_set.count()
+
     @staticmethod
     def get_sorter():
         """

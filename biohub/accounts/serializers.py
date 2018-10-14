@@ -4,7 +4,7 @@ from django.core import signing
 from django.core.cache import cache
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
-from rest_framework import serializers, status
+from rest_framework import serializers, status, fields
 from rest_framework.exceptions import Throttled
 
 from biohub.utils.rest.serializers import bind_model,\
@@ -32,6 +32,22 @@ class UserInfoSerializer(serializers.ModelSerializer):
     """
     A cut-down version of UserSerializer.
     """
+    def __init__(self, instance=None, data=fields.empty, current_user=None, **kwargs):
+        self.current_user = current_user
+        super().__init__(instance, data, **kwargs)
+
+    def _followed(self, instance: User):
+        if not self.current_user:
+            return False
+
+        return self.current_user in instance.followers.all()
+
+    def to_representation(self, instance):
+        o = super().to_representation(instance)
+        return {
+            'followed': self._followed(instance),
+            **o
+        }
 
     def to_internal_value(self, data):
         if isinstance(data, str):
@@ -43,7 +59,7 @@ class UserInfoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'avatar_url', 'username')
+        fields = ('id', 'avatar_url', 'username', 'description')
 
 
 class RegisterSerializer(serializers.ModelSerializer):
