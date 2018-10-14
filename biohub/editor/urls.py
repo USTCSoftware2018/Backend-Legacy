@@ -16,6 +16,7 @@ comment_router = routers.NestedSimpleRouter(router, 'comment', lookup='comment')
 comment_router.register(r'nameservers', views.CommentPostSingleViewSet, base_name='domain-comment')
 
 register_api(r'^editor/', router.urls)
+register_api(r'^editor/', comment_router.urls)
 register_api(r'^', [
     url(r'^users/labels/(?P<user_id>[0-9]+)/$', views.LabelViewSet.list_user_labels),
     url(r'^users/popular-reports-list/?$', views.ReportViewSet.get_popular_reports),

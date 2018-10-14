@@ -202,6 +202,8 @@ class CommentPostSingleViewSet(viewsets.ModelViewSet):
         list_s = CommentSerializer(_list, many=True)
         return Response(data=list_s, status=status.HTTP_200_OK)
 
+class CommentReportViewSet(viewsets.)
+
 
 def comment_post_single(request):
 
