@@ -213,6 +213,7 @@ class CommentPostSingleViewSet(viewsets.ModelViewSet):
         # comment_json = request.POST.body.decode()
         comment_json = request.body.decode()
         comment = json.loads(comment_json)
+        print(comment)
         report_pk = comment['to_report']
         report = Report.objects.get(pk=report_pk)
         user = request.user
