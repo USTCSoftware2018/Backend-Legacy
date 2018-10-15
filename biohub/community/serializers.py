@@ -12,6 +12,10 @@ class CollectRequestSerializer(serializers.Serializer):
     collection = serializers.CharField()
 
 
+class UncollectRequestSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+
+
 class CollectionSerializer(serializers.ModelSerializer):
     collector = serializers.HiddenField(default=serializers.CurrentUserDefault())
     reports = ReportInfoSerializer(many=True, required=False)

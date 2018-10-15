@@ -9,7 +9,7 @@ from biohub.editor.models import Report
 from biohub.editor.serializers import ReportInfoSerializer, UserInfoSerializer
 
 from biohub.community.models import Star, Collection
-from biohub.community.serializers import StarRequestSerializer, CollectRequestSerializer
+from biohub.community.serializers import StarRequestSerializer, CollectRequestSerializer, UncollectRequestSerializer
 from biohub.community.serializers import CollectionSerializer
 
 
@@ -66,10 +66,18 @@ def collect(request):
     id = serializer.validated_data['id']
     name = serializer.validated_data['collection']
     try:
-        collection, _ = Collection.objects.get_or_create(collector=user, name=name)
         report = Report.objects.get(id=id)
+
+        # Delete existing collection by the same user
+        existing = Collection.objects.filter(collector=user, reports=report).all()
+        for col in existing:
+            col.reports.remove(report)
+
+        # Add to the user's collection whose name is name
+        collection, _ = Collection.objects.get_or_create(collector=user, name=name)
         collection.reports.add(report)
         collection.save()
+
     except KeyError:
         return HttpResponse(status=400)
     except Report.DoesNotExist:
@@ -81,26 +89,27 @@ def collect(request):
 @decorators.permission_classes([permissions.IsAuthenticated])
 def uncollect(request):
     user = request.user
-    serializer = CollectRequestSerializer(data=request.data)
+    serializer = UncollectRequestSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     id = serializer.validated_data['id']
-    name = serializer.validated_data['collection']
+
     try:
-        collection = Collection.objects.get(collector=user, name=name)
         report = Report.objects.get(id=id)
+        collection = Collection.objects.get(collector=user, reports=report)
+
         collection.reports.remove(report)
+        collection.save()
+
         if collection.reports.count() == 0:
             collection.delete()
-            return HttpResponse('{}', status=200)
-        else:
-            collection.save()
+
     except KeyError:
         return HttpResponse(status=400)
     except Collection.DoesNotExist:
         return HttpResponse('{}', status=200)
     except Report.DoesNotExist:
         return HttpResponse('{}', status=200)
-    return Response(CollectionSerializer(collection).data)
+    return Response(status=200)
 
 
 class ActiveUsersViewSet(generics.ListAPIView):
