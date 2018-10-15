@@ -17,7 +17,11 @@ class NoticeSerializer(ModelSerializer):
             # Return starred report instead of the star itself
             return ReportInfoSerializer(instance.target.starred_report).data
         elif isinstance(instance.target, User):
-            return UserInfoSerializer(instance.target).data
+            data = UserInfoSerializer(instance.target).data
+            stat = instance.target.get_stat()
+            data.update(stat)
+            return data
+            # return UserInfoSerializer(instance.target).data
         else:
             return {}
 

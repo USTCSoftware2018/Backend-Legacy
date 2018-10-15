@@ -226,7 +226,7 @@ class CommentPostSingleViewSet(viewsets.ModelViewSet):
                 new_comment.user = user
                 new_comment.text = message
                 new_comment.to_report = report
-                # new_comment.reply_to = None
+                new_comment.reply_to = None
                 # raise KeyError('reached')
                 new_comment.save()
                 # raise KeyError('reached')
