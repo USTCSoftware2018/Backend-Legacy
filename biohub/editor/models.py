@@ -65,7 +65,7 @@ class Report(models.Model):
     @staticmethod
     def get_popular():
         sorter = Report.get_sorter()
-        return Report.objects.order_by(sorter)
+        return Report.objects.order_by(sorter).distinct()
 
     @staticmethod
     def get_user_popular(user):
