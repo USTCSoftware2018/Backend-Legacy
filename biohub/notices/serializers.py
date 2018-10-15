@@ -19,7 +19,7 @@ class NoticeSerializer(ModelSerializer):
         elif isinstance(instance.target, User):
             data = UserInfoSerializer(instance.target).data
             stat = instance.target.get_stat()
-            data.update(stat)
+            data['stat'] = stat
             return data
             # return UserInfoSerializer(instance.target).data
         else:
