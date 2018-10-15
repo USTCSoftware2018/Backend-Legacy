@@ -32,7 +32,8 @@ def send_notice_to_followed_user(instance, target_user, **kwargs):
     Dispatcher('Follow').send(
         target_user,
         '{{actor.username|url:actor}} started following you',
-        actor=instance
+        actor=instance,
+        target=instance
     )
 
 
