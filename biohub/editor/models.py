@@ -1,6 +1,6 @@
 from django.utils.timezone import datetime
 from django.db import models
-from django.db.models import F
+from django.db.models import F, Count
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 from biohub.accounts.models import User
@@ -60,17 +60,17 @@ class Report(models.Model):
 
         :return: a sorter can be used for QuerySet.order_by()
         """
-        return (F('views') + (F('star') + F('comments')) * 2).desc()
+        return F('views') + (F('star') + F('comments')) * 2
 
     @staticmethod
     def get_popular():
         sorter = Report.get_sorter()
-        return Report.objects.order_by(sorter).distinct()
+        return Report.objects.annotate(points=Count(sorter)).order_by('-points').distinct()
 
     @staticmethod
     def get_user_popular(user):
         sorter = Report.get_sorter()
-        return Report.objects.filter(author=user).order_by(sorter)
+        return Report.objects.filter(author=user).annotate(points=Count(sorter)).order_by('-points').distinct()
 
 
 class Step(models.Model):
