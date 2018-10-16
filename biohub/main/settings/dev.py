@@ -3,7 +3,7 @@ import coloredlogs
 
 ALLOWED_HOSTS = ['*']
 
-API_PREFIX = "https://api.biohub.tech"
+API_PREFIX = "https://api-us.biohub.tech"
 
 TIME_ZONE = 'Asia/Shanghai'
 
