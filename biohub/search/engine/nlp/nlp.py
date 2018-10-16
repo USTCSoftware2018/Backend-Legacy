@@ -12,6 +12,9 @@ def JVM_init():
     if not isJVMStarted():
         startJVM(jpath, '-ae', '-Djava.class.path=%s' % (classpath))
 
+    if not isThreadAttachedToJVM():
+        attachThreadToJVM()
+
 def parse(text):
     JVM_init()
     BiohubNLP = JClass('BiohubNLP')
