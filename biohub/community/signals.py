@@ -31,7 +31,7 @@ def remove_report_notices(instance, using, **kwargs):
 def send_notice_to_followed_user(instance, target_user, **kwargs):
     Dispatcher('Follow').send(
         target_user,
-        '{{actor.username|url:actor}} started following you',
+        '%s started following you' % instance.username,
         actor=instance,
         target=instance
     )
@@ -54,10 +54,9 @@ def send_notice_to_starred_report_author(instance, raw, created, using, update_f
         author = report.author
         Dispatcher('Star').send(
             author,
-            '{{actor.username|url:actor}} starred your report {{report.title|url:report}}',
+            '%s starred your report %s' % (starrer.username, report.title),
             actor=starrer,
-            target=instance,
-            report=report
+            target=instance
         )
 
 
@@ -77,10 +76,9 @@ def send_notice_to_commented_report_author(instance, raw, created, using, update
         report = instance.to_report
         Dispatcher('Comment').send(
             report.author,
-            '{{actor.username|url:actor}} commented on your report {{report.title|url:report}}',
+            '%s commented on your report %s' % (commenter.username, report.title),
             actor=commenter,
-            target=instance,
-            report=report
+            target=instance
         )
 
 
@@ -101,8 +99,7 @@ def send_new_report_notice_to_followers(instance, raw, created, **kwargs):
         for follower in author.followers.all():
             Dispatcher('FollowingReport').send(
                 follower,
-                '{{actor.username|url:actor}} wrote a new report {{report.title|url:report}}',
+                '%s wrote a new report %s' % (author.username, instance.title),
                 actor=author,
-                report=instance,
-                target=instance,
+                target=instance
             )
