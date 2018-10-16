@@ -92,7 +92,7 @@ class EngineDB(EngineBase):
 
     def _result(self):
         from .db.SpiderMonitor import SpiderMonitor
-        result = SpiderMonitor().spiders(keyword=self.s, timeout=4)
+        result = SpiderMonitor().spiders(keyword=self.s, timeout=5)
         return result
 
 class FilterType:
