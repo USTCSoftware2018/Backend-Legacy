@@ -6,6 +6,7 @@ from .models import Notice
 @bind_model(Notice)
 class NoticeSerializer(ModelSerializer):
     target = rest_serializers.SerializerMethodField(allow_null=True, read_only=True)
+    actor = rest_serializers.SerializerMethodField(allow_null=True, read_only=True)
 
     def get_target(self, instance):
         from biohub.community.models import Star
@@ -25,6 +26,18 @@ class NoticeSerializer(ModelSerializer):
         else:
             return {}
 
+    def get_actor(self, instance):
+        from biohub.accounts.models import User
+        from biohub.accounts.serializers import UserInfoSerializer
+
+        if isinstance(instance.actor, User):
+            data = UserInfoSerializer(instance.actor).data
+            stat = instance.actor.get_stat()
+            data['stat'] = stat
+            return data
+
+        return None
+
     class Meta:
-        fields = ('id', 'has_read', 'message', 'category', 'created', 'target')
+        fields = ('id', 'has_read', 'message', 'category', 'created', 'actor', 'target')
         model = Notice
