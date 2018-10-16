@@ -78,7 +78,7 @@ def send_notice_to_commented_report_author(instance, raw, created, using, update
             report.author,
             '%s commented on your report %s' % (commenter.username, report.title),
             actor=commenter,
-            target=report,
+            target=report,   # Set target to be report rather than comment
         )
 
 

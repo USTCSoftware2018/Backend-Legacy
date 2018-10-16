@@ -10,6 +10,7 @@ class NoticeSerializer(ModelSerializer):
 
     def get_target(self, instance):
         from biohub.community.models import Star
+        from biohub.editor.models import Report
         from biohub.editor.serializers import ReportInfoSerializer
         from biohub.accounts.models import User
         from biohub.accounts.serializers import UserInfoSerializer
@@ -23,6 +24,8 @@ class NoticeSerializer(ModelSerializer):
             data['stat'] = stat
             return data
             # return UserInfoSerializer(instance.target).data
+        elif isinstance(instance.target, Report):
+            return ReportInfoSerializer(instance.target).data
         else:
             return {}
 
