@@ -10,6 +10,6 @@ from .engine import Engine
 @decorators.api_view(['GET', 'POST'])
 def search(request):
     s = request.GET.get('s') or request.data.get('s')
-    engine = Engine()
-    result = engine.test(debug=s)
+    engine = Engine(s)
+    result = engine.data()
     return Response(result)
