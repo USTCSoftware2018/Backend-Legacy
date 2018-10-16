@@ -91,8 +91,9 @@ class EngineDB(EngineBase):
         return 4
 
     def _result(self):
-        return [{"count":0,"title":"iGEM Parts","url":"http://parts.igem.org/Special:Search?search=p12"}, {"count":1,"title":"NLM","url":"https://ghr.nlm.nih.gov/search?query=p12"}]
-
+        from .db.SpiderMonitor import SpiderMonitor
+        result = SpiderMonitor().spiders(keyword=self.s, timeout=5)
+        return result
 
 class FilterType:
     TIME = 'time'
