@@ -15,7 +15,7 @@ from biohub.community.serializers import StarRequestSerializer, CollectRequestSe
 from biohub.community.serializers import CollectionSerializer
 
 
-class StarViewSet(viewsets.ViewSet):
+class StarViewSet(viewsets.ViewSet, PassUserToSerializer):
     permission_classes = [permissions.IsAuthenticated]
 
     # Route: GET /users/favorites/
@@ -50,7 +50,7 @@ class StarViewSet(viewsets.ViewSet):
         return HttpResponse('true', status=200)
 
 
-class CollectionViewSet(viewsets.ModelViewSet):
+class CollectionViewSet(viewsets.ModelViewSet, PassUserToSerializer):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = CollectionSerializer
 
