@@ -9,9 +9,10 @@ classpath=':'.join([stanford_path + jar for jar in jars])+':'+'/root/NLP'
 jpath = getDefaultJVMPath()
 
 def JVM_init():
-    if isJVMStarted():
-        return
-    startJVM(jpath, '-ae', '-Djava.class.path=%s' % (classpath));
+    if not isJVMStarted():
+        startJVM(jpath, '-ae', '-Djava.class.path=%s' % (classpath));
+    if not jpype.isThreadAttachedToJVM():
+        attachThreadToJVM()
 
 def parse(text):
     JVM_init()
