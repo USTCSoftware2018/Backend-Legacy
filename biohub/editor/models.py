@@ -119,6 +119,9 @@ class Comment(models.Model):
     to_report = models.ForeignKey(Report, on_delete=models.CASCADE, db_index=True, related_name='comments')
     reply_to = models.OneToOneField('self', on_delete=models.CASCADE, default=None, blank=True, null=True,
                                     related_name='replied_by')
+
+    notices = GenericRelation('notices.Notice', 'target_id', 'target_type', related_query_name='comment')
+
     # @property
     # def all_sub_comments(self):
     #     return self.sub_comments.all().order_by('time')
