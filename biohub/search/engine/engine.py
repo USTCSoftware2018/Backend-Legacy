@@ -175,17 +175,15 @@ class Filters:
             return None
         import sys
         sys.path.append('/root/NLP')
-        try:
-            from biohub_nlp import parse
-            start, end, match = parse(self.s)
-            self.add_filter(FilterItem(FilterType.TIME, FilterRel.GT, start))
-            self.add_filter(FilterItem(FilterType.TIME, FilterRel.LT, end))
-        except:
-            return
+        #try:
+        from biohub_nlp import parse
+        start, end, match = parse(self.s)
+        self.add_filter(FilterItem(FilterType.TIME, FilterRel.GT, start))
+        self.add_filter(FilterItem(FilterType.TIME, FilterRel.LT, end))
+        #except:
+        #    return
 
     def filters(self):
-        f = list()
-
         self.rule_label()
         self.rule_reports_by_user()
         self.rule_user_in_address()
