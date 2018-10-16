@@ -79,7 +79,8 @@ def send_notice_to_commented_report_author(instance, raw, created, using, update
             report.author,
             '{{actor.username|url:actor}} commented on your report {{report.title|url:report}}',
             actor=commenter,
-            target=instance
+            target=instance,
+            report=report
         )
 
 
