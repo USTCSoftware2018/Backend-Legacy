@@ -72,7 +72,7 @@ class NoticeViewSet(
         """
         Notifications sent specifically to the current user.
         """
-        qs = self.get_queryset().filter(~Q(category__startswith='Following'), has_read=False).all()
+        qs = self.get_queryset().filter(~Q(category__startswith='Following')).all()
         page = self.paginate_queryset(qs)
         qs.mark_read()  # See issue 40
         return self.get_paginated_response(NoticeSerializer(page, many=True).data)
