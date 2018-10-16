@@ -171,21 +171,21 @@ class Filters:
             self.add_filter(FilterItem(FilterType.LABEL, FilterRel.EQ, label))
 
     def _mktime(self, t):
-        import datetime
+        import time
         t = float(t)
-        local_str_time = datetime.localtime(t / 1000.0).strftime('%Y-%m-%d %H:%M:%S')
+        local_str_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(t / 1000.0))
         return local_str_time
 
     def rule_time(self):
         if len(self.s.split()) <= 1:
             return None
-        #try:
-        from .nlp.nlp import parse
-        start, end, match = parse(self.s)
-        self.add_filter(FilterItem(FilterType.TIME, FilterRel.GT, self._mktime(start)))
-        self.add_filter(FilterItem(FilterType.TIME, FilterRel.LT, self._mktime(end)))
-        #except:
-        #    return
+        try:
+            from .nlp.nlp import parse
+            start, end, match = parse(self.s)
+            self.add_filter(FilterItem(FilterType.TIME, FilterRel.GT, self._mktime(start)))
+            self.add_filter(FilterItem(FilterType.TIME, FilterRel.LT, self._mktime(end)))
+        except:
+            return
 
     def filters(self):
         self.rule_label()

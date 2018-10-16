@@ -9,8 +9,9 @@ classpath=':'.join([stanford_path + jar for jar in jars])+':'+'/root/NLP'
 jpath = getDefaultJVMPath()
 
 def parse(text):
-    if not isJVMStarted():
-        startJVM(jpath, '-ae', '-Djava.class.path=%s' % (classpath));
+    if isJVMStarted():
+        shutdownJVM()
+    startJVM(jpath, '-ae', '-Djava.class.path=%s' % (classpath));
     BiohubNLP = JClass('BiohubNLP')
     start, end, match = BiohubNLP.Parse(text)
     start = start[:]
