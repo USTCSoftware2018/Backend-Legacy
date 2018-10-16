@@ -224,13 +224,10 @@ class CommentPostSingleViewSet(viewsets.ModelViewSet):
         comment_json = request.body.decode()
         comment = json.loads(comment_json)
         report_pk = comment['to_report']
-        # report = Report.objects.get(pk=report_pk)
         report = get_object_or_404(Report, pk=report_pk)
         user = request.user
         message = comment['message']  # message
         to_comment = comment['to_comment']  # comment_pk
-        # raise KeyError('reached')
-        # raise KeyError(report)
         if user is not None and user.is_active:
             if to_comment == -1:
                 new_comment = Comment()
@@ -238,12 +235,10 @@ class CommentPostSingleViewSet(viewsets.ModelViewSet):
                 new_comment.text = message
                 new_comment.to_report = report
                 new_comment.reply_to = None
-                # raise KeyError('reached')
                 try:
                     new_comment.save()
                 except:
                     return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-                # raise KeyError('reached')
 
             else:
                 new_comment = Comment()
@@ -260,12 +255,8 @@ class CommentPostSingleViewSet(viewsets.ModelViewSet):
             return Response(data=s.data, status=status.HTTP_200_OK)
 
         else:
-            # data = {
-            #     'detail': 'Not log in'
-            # }
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-    # @decorators.list_route(methods=['get'])
     @staticmethod
     @decorators.api_view(['get'])
     def get_report_comment(request, report_pk=None):
@@ -274,45 +265,3 @@ class CommentPostSingleViewSet(viewsets.ModelViewSet):
         list_s = CommentSerializer(_list, many=True)
         return Response(data=list_s.data, status=status.HTTP_200_OK)
 
-# class CommentReportViewSet(viewsets.)
-
-
-# def comment_post_single(request):
-#
-#     body = {
-#         'to_report': 366,  # report id
-#         'message': "I find it funny",  # comment body
-#         'to_comment': 32,  # comment id, "to_comment" = -1 if don't have superior one
-#     }
-#
-#     if request.method == 'POST':
-#         comment_json = request.POST.body.decode()
-#         comment = json.loads(comment_json)
-#         report_pk = comment['to_report']
-#         report = Report.objects.get(pk=report_pk)
-#         user = request.user
-#         message = comment['message']  # message
-#         to_comment = comment['to_comment']  # comment_pk
-#
-#         if user is not None and user.is_active:
-#
-#             if to_comment == -1:
-#                 new_comment = Comment()
-#                 new_comment.user = user
-#                 new_comment.text = message
-#                 new_comment.to_report = report
-#                 new_comment.reply_to = None
-#                 new_comment.save()
-#
-#             else:
-#                 new_comment = Comment()
-#                 new_comment.user = user
-#                 new_comment.text = message
-#                 new_comment.to_report = report
-#                 new_comment.reply_to = Comment.objects.get(pk=to_comment)
-#                 new_comment.save()
-#
-#         else:
-#             pass
-#     else:
-#         pass

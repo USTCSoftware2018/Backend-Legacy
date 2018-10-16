@@ -198,7 +198,8 @@ class GraphSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    # user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    user = UserInfoSerializer()
     text = serializers.CharField()
     to_report = serializers.PrimaryKeyRelatedField(queryset=Report.objects.all())
     time = serializers.DateTimeField()
