@@ -173,7 +173,7 @@ class Filters:
     def _mktime(self, t):
         import datetime
         t = float(t)
-        local_str_time = datetime.fromtimestamp(t / 1000.0).strftime('%Y-%m-%d %H:%M:%S')
+        local_str_time = datetime.localtime(t / 1000.0).strftime('%Y-%m-%d %H:%M:%S')
         return local_str_time
 
     def rule_time(self):
