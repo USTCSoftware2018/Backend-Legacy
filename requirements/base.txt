@@ -17,3 +17,4 @@ html2text==2017.10.4
 sqlparse==0.2.4
 python-crontab==2.2.7
 psutil==5.4.1
+JPype1==0.6.3
