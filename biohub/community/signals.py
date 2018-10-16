@@ -84,9 +84,8 @@ def send_notice_to_commented_report_author(instance, raw, created, using, update
 
 @receiver(pre_delete, sender=Comment)
 def remove_notices_on_delete_comment(instance, using, **kwargs):
-    report = instance.to_report
     Notice.objects.filter(
-        user=report.author,
+        category='Comment',
         actor=instance.user,
         comment=instance
     ).delete()
