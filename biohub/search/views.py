@@ -10,4 +10,5 @@ from .engine import Engine
 @decorators.api_view(['GET'])
 def search(request):
     engine = Engine()
-    return engine.test()
+    result = engine.test()
+    return Response(result)
