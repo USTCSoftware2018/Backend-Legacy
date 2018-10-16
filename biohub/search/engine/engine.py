@@ -1,4 +1,4 @@
-from parser import PeopleParser, TimeParser, LabelParser
+from .parser import PeopleParser, TimeParser, LabelParser
 import re
 
 def test(debug=None):
