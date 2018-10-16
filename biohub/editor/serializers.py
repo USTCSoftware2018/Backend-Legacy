@@ -87,7 +87,7 @@ class ReportInfoSerializer(serializers.BaseSerializer):
         return instance.star_set.filter(starrer=self.context['user']).count() >= 1
 
     def iscollected(self, instance):
-        if not self.context['user']:
+        if 'user' not in self.context or not self.context['user']:
             return False
 
         return instance.collection_set.filter(collector=self.context['user']).count() >= 1
