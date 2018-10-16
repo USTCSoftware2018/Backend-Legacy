@@ -74,6 +74,8 @@ def send_notice_to_commented_report_author(instance, raw, created, using, update
     if created:
         commenter = instance.user
         report = instance.to_report
+        if report.author == commenter:
+            return
         Dispatcher('Comment').send(
             report.author,
             '%s commented on your report %s' % (commenter.username, report.title),
