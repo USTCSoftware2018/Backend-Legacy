@@ -10,9 +10,10 @@ jpath = getDefaultJVMPath()
 
 def JVM_init():
     if not isJVMStarted():
-        startJVM(jpath, '-ae', '-Djava.class.path=%s' % (classpath));
-    if not isThreadAttachedToJVM():
-        attachThreadToJVM()
+        startJVM(jpath, '-ae', '-Djava.class.path=%s' % (classpath))
+
+def JVM_down():
+
 
 def parse(text):
     JVM_init()
@@ -21,6 +22,7 @@ def parse(text):
     start = start[:]
     end = end[:]
     match = match[:]
+    JVM_down()
     return start, end, match
 
 if __name__ == "__main__":
