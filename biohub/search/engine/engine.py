@@ -173,10 +173,8 @@ class Filters:
     def rule_time(self):
         if len(self.s.split()) <= 1:
             return None
-        import sys
-        sys.path.append('/root/NLP')
         #try:
-        from biohub_nlp import parse
+        from .nlp.nlp import parse
         start, end, match = parse(self.s)
         self.add_filter(FilterItem(FilterType.TIME, FilterRel.GT, start))
         self.add_filter(FilterItem(FilterType.TIME, FilterRel.LT, end))
