@@ -228,7 +228,10 @@ class CommentPostSingleViewSet(viewsets.ModelViewSet):
                 new_comment.to_report = report
                 new_comment.reply_to = None
                 # raise KeyError('reached')
-                new_comment.save()
+                try:
+                    new_comment.save()
+                except:
+                    return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
                 # raise KeyError('reached')
 
             else:
@@ -237,7 +240,10 @@ class CommentPostSingleViewSet(viewsets.ModelViewSet):
                 new_comment.text = message
                 new_comment.to_report = report
                 new_comment.reply_to = Comment.objects.get(pk=to_comment)
-                new_comment.save()
+                try:
+                    new_comment.save()
+                except:
+                    return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             s = CommentSerializer(new_comment)
             return Response(data=s.data, status=status.HTTP_200_OK)
