@@ -8,18 +8,18 @@ jars = ['ejml-0.23.jar', 'javax.activation-api-1.2.0.jar', 'javax.activation-api
 classpath=':'.join([stanford_path + jar for jar in jars])+':'+'/root/NLP'
 jpath = getDefaultJVMPath()
 
-def parse(text):
+def JVM_init():
+    if isJVMStarted():
+        return
     startJVM(jpath, '-ae', '-Djava.class.path=%s' % (classpath));
-    try:
-        BiohubNLP = JClass('BiohubNLP')
-        start, end, match = BiohubNLP.Parse(text)
-        start = start[:]
-        end = end[:]
-        match = match[:]
-    except:
-        pass
-    finally:
-        shutdownJVM()
+
+def parse(text):
+    JVM_init()
+    BiohubNLP = JClass('BiohubNLP')
+    start, end, match = BiohubNLP.Parse(text)
+    start = start[:]
+    end = end[:]
+    match = match[:]
     return start, end, match
 
 if __name__ == "__main__":
