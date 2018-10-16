@@ -144,37 +144,52 @@ class FilterItem:
 class Filters:
     def __init__(self, s):
         self.s = s
+        self.__filters = list()
+
+    def add_filter(self, filter):
+        self.__filters.append(filter)
 
     def rule_user_in_address(self):
         p = re.compile(r'users? in (\w+)', re.I)
         match_obj = p.search(self.s)
         if match_obj:
             addr = match_obj.group(1)
-            return FilterItem(FilterType.USER, FilterRel.IN, addr)
-        return None
+            self.add_filter(FilterItem(FilterType.USER, FilterRel.IN, addr))
 
     def rule_reports_by_user(self):
         p = re.compile(r'reports? by (\w+)', re.I)
         match_obj = p.search(self.s)
         if match_obj:
             user = match_obj.group(1)
-            return FilterItem(FilterType.USER, FilterRel.EQ, user)
-        return None
+            self.add_filter(FilterItem(FilterType.USER, FilterRel.EQ, user))
 
     def rule_label(self):
         p = re.compile(r'#(\w+)', re.I)
         match_obj = p.search(self.s)
         if match_obj:
             label = match_obj.group(1)
-            return FilterItem(FilterType.LABEL, FilterRel.EQ, label)
-        return None
+            self.add_filter(FilterItem(FilterType.LABEL, FilterRel.EQ, label))
+
+    def rule_time(self):
+        if len(self.s.split()) <= 1:
+            return None
+        import sys
+        sys.path.append('/root/NLP')
+        try:
+            from biohub_nlp import parse
+            start, end, match = parse(self.s)
+            self.add_filter(FilterItem(FilterType.TIME, FilterRel.GT, start))
+            self.add_filter(FilterItem(FilterType.TIME, FilterRel.LT, end))
+        except:
+            return
 
     def filters(self):
         f = list()
 
-        f.append(self.rule_label())
-        f.append(self.rule_reports_by_user())
-        f.append(self.rule_user_in_address())
+        self.rule_label()
+        self.rule_reports_by_user()
+        self.rule_user_in_address()
+        self.rule_time()
         f = filter(lambda x: x, f)
         f = [x.data() for x in f]
         return f
