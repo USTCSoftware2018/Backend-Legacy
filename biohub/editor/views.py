@@ -150,6 +150,17 @@ class ReportViewSet(viewsets.ModelViewSet):
         serializer = ArchiveInfoSerializer(archives, many=True)
         return Response(serializer.data)
 
+    @staticmethod
+    @decorators.api_view(['get'])
+    def get_report_simple(request, report_id):
+        if request.user and request.user.is_authenticated:
+            user = request.user
+        else:
+            user = None
+        report = get_object_or_404(Report, pk=report_id)
+        serializer = ReportInfoSerializer(report, current_user=user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class LabelViewSet(viewsets.ModelViewSet):
     queryset = Label.objects.all()
