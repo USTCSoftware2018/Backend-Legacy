@@ -170,14 +170,20 @@ class Filters:
             label = match_obj.group(1)
             self.add_filter(FilterItem(FilterType.LABEL, FilterRel.EQ, label))
 
+    def _mktime(self, t):
+        import datetime
+        t = float(t)
+        local_str_time = datetime.fromtimestamp(t / 1000.0).strftime('%Y-%m-%d %H:%M:%S')
+        return local_str_time
+
     def rule_time(self):
         if len(self.s.split()) <= 1:
             return None
         #try:
         from .nlp.nlp import parse
         start, end, match = parse(self.s)
-        self.add_filter(FilterItem(FilterType.TIME, FilterRel.GT, start))
-        self.add_filter(FilterItem(FilterType.TIME, FilterRel.LT, end))
+        self.add_filter(FilterItem(FilterType.TIME, FilterRel.GT, self._mktime(start)))
+        self.add_filter(FilterItem(FilterType.TIME, FilterRel.LT, self._mktime(end)))
         #except:
         #    return
 
