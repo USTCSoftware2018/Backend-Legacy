@@ -74,16 +74,6 @@ class EngineReport(EngineBase):
 {"id":4,"title":"asdfbaisdf","author":{"id":1,"avatar_url":"https://api.biohub.tech/media/2.jpg","description":"description","followed":False,"username":"test"},"iscollected":False,"abstract":"fasbdfhjabef","commentsnum":5,"labels":[],"likesnum":2,"isliked":False}]
 
 
-class EngineBioBrick(EngineBase):
-    type = 'biobrick'
-
-    def _rank(self):
-        return 3
-
-    def _result(self):
-        return ["<B1>", "<B2>"]
-
-
 class EngineDB(EngineBase):
     type = 'db'
 
@@ -101,6 +91,21 @@ class EngineDB(EngineBase):
         from .db.SpiderMonitor import SpiderMonitor
         result = SpiderMonitor().spiders(keyword=self.s, timeout=5)
         return result
+
+class EngineBLAST(EngineBase):
+    type = 'blast'
+
+    def _check(self):
+        return len(self.s.split()) == 1 and len(self.s) > 100 and set("ATCG") == set(self.s.upper())
+
+    def _rank(self):
+        if self._check():
+            return 0
+        else:
+            return -1
+
+    def _result(self):
+        return []
 
 class FilterType:
     TIME = 'time'
@@ -189,8 +194,8 @@ class Engine:
 
         data.append(EngineUser(self.s).result())
         data.append(EngineReport(self.s).result())
-        data.append(EngineBioBrick(self.s).result())
         data.append(EngineDB(self.s).result())
+        data.append(EngineBLAST(self.s).result())
 
         return data
 
