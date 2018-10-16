@@ -105,7 +105,7 @@ class ReportViewSet(viewsets.ModelViewSet):
         queryset = Report.objects.filter(author_id=user_id)
         paginator = pagination.PageNumberPagination()
         page = paginator.paginate_queryset(queryset, request)
-        serializer = ReportInfoSerializer(page, many=True)
+        serializer = ReportInfoSerializer(page, many=True, context={'user': request.user})
         return paginator.get_paginated_response(serializer.data)
 
     @staticmethod
@@ -118,7 +118,7 @@ class ReportViewSet(viewsets.ModelViewSet):
             user = request.user
         else:
             user = None
-        serializer = ReportInfoSerializer(page, many=True, current_user=user)
+        serializer = ReportInfoSerializer(page, many=True, context={'user': user})
         return paginator.get_paginated_response(serializer.data)
 
     @staticmethod
@@ -158,7 +158,7 @@ class ReportViewSet(viewsets.ModelViewSet):
         else:
             user = None
         report = get_object_or_404(Report, pk=report_id)
-        serializer = ReportInfoSerializer(report, current_user=user)
+        serializer = ReportInfoSerializer(report, context={'user': user})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

@@ -3,6 +3,8 @@ from django.db.models import F, Count
 from rest_framework import decorators, viewsets, permissions, generics, pagination, mixins
 from rest_framework.response import Response
 
+from biohub.utils.mixins import PassUserToSerializer
+
 from biohub.accounts.models import User
 
 from biohub.editor.models import Report
@@ -112,12 +114,9 @@ def uncollect(request):
     return Response(status=200)
 
 
-class ActiveUsersViewSet(generics.ListAPIView):
+class ActiveUsersViewSet(generics.ListAPIView, PassUserToSerializer):
     serializer_class = UserInfoSerializer
     pagination_class = pagination.PageNumberPagination
-
-    def get_serializer(self, *args, **kwargs):
-        return UserInfoSerializer(*args, current_user=self.request.user, **kwargs)
 
     def get_queryset(self):
         sorter = F('report') * 10 + F('comment') * 2 + F('followers')

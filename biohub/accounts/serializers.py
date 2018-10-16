@@ -62,16 +62,11 @@ class UserInfoSerializer(serializers.ModelSerializer):
         return instance.avatar_url
     # }
 
-
-    def __init__(self, instance=None, data=fields.empty, current_user=None, **kwargs):
-        self.current_user = current_user
-        super().__init__(instance, data, **kwargs)
-
     def _followed(self, instance: User):
-        if not self.current_user:
+        if 'user' not in self.context or not self.context['user']:
             return False
 
-        return self.current_user in instance.followers.all()
+        return self.context['user'] in instance.followers.all()
 
     def to_representation(self, instance):
         o = super().to_representation(instance)

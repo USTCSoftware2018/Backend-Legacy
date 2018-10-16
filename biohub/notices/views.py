@@ -1,6 +1,7 @@
 from django.db.models import Q
 from rest_framework import viewsets, mixins, decorators
 from rest_framework.response import Response
+from biohub.utils.mixins import PassUserToSerializer
 from biohub.utils.rest import pagination, permissions as p
 
 from .serializers import NoticeSerializer
@@ -10,7 +11,8 @@ from .models import Notice
 class NoticeViewSet(
         mixins.ListModelMixin,
         mixins.RetrieveModelMixin,
-        viewsets.GenericViewSet):
+        viewsets.GenericViewSet,
+        PassUserToSerializer):
 
     serializer_class = NoticeSerializer
     pagination_class = pagination.factory('PageNumberPagination')

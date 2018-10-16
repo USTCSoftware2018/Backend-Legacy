@@ -74,10 +74,6 @@ class ReportInfoSerializer(serializers.BaseSerializer):
     commentsnum = serializers.IntegerField()
     likesnum = serializers.IntegerField()
 
-    def __init__(self, instance=None, data=fields.empty, current_user=None, **kwargs):
-        self.current_user = current_user
-        super().__init__(instance, data, **kwargs)
-
     def to_internal_value(self, data):
         try:
             return Report.objects.get(id=int(data))
@@ -85,16 +81,16 @@ class ReportInfoSerializer(serializers.BaseSerializer):
             return Report.objects.get(**data)
 
     def isliked(self, instance):
-        if not self.current_user:
+        if 'user' not in self.context or not self.context['user']:
             return False
 
-        return instance.star_set.filter(starrer=self.current_user).count() >= 1
+        return instance.star_set.filter(starrer=self.context['user']).count() >= 1
 
     def iscollected(self, instance):
-        if not self.current_user:
+        if not self.context['user']:
             return False
 
-        return instance.collection_set.filter(collector=self.current_user).count() >= 1
+        return instance.collection_set.filter(collector=self.context['user']).count() >= 1
 
     def to_representation(self, instance):
         cls = ReportInfoSerializer
