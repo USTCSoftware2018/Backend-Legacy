@@ -90,7 +90,11 @@ class EngineDB(EngineBase):
     def _rank(self):
         return 4
 
+    def _check(self):
+        return len(self.s.split()) == 1
+
     def _result(self):
+        if not self._check(): return []
         from .db.SpiderMonitor import SpiderMonitor
         result = SpiderMonitor().spiders(keyword=self.s, timeout=5)
         return result
