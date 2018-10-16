@@ -147,7 +147,7 @@ class Filters:
         self.__filters = list()
 
     def add_filter(self, filter):
-        self.__filters.append(filter)
+        if filter: self.__filters.append(filter)
 
     def rule_user_in_address(self):
         p = re.compile(r'users? in (\w+)', re.I)
@@ -190,7 +190,7 @@ class Filters:
         self.rule_reports_by_user()
         self.rule_user_in_address()
         self.rule_time()
-        f = filter(lambda x: x, f)
+        f = self.__filters
         f = [x.data() for x in f]
         return f
 
