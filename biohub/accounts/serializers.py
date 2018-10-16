@@ -22,6 +22,21 @@ class UserSerializer(ModelSerializer):
     followed = serializers.BooleanField(required=False, read_only=True)
     stat = serializers.JSONField(source='get_stat', required=False, read_only=True)
 
+    # FIXME: The following part is TEMPORARY!!!
+    # It should be deleted as soon as possible
+    #  {
+    avatar_url = serializers.SerializerMethodField()
+
+    def get_avatar_url(self, instance):
+        from biohub.main.settings.dev import API_PREFIX
+
+        if instance.avatar_url.startswith('/'):
+            return API_PREFIX + instance.avatar_url
+
+        return instance.avatar_url
+    # }
+
+
     class Meta:
         model = User
         exclude = ('password', 'followers',)
@@ -32,6 +47,22 @@ class UserInfoSerializer(serializers.ModelSerializer):
     """
     A cut-down version of UserSerializer.
     """
+
+    # FIXME: The following part is TEMPORARY!!!
+    # It should be deleted as soon as possible
+    #  {
+    avatar_url = serializers.SerializerMethodField()
+
+    def get_avatar_url(self, instance):
+        from biohub.main.settings.dev import API_PREFIX
+
+        if instance.avatar_url.startswith('/'):
+            return API_PREFIX + instance.avatar_url
+
+        return instance.avatar_url
+    # }
+
+
     def __init__(self, instance=None, data=fields.empty, current_user=None, **kwargs):
         self.current_user = current_user
         super().__init__(instance, data, **kwargs)
