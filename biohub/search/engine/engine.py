@@ -84,7 +84,7 @@ class EngineDB(EngineBase):
             return -1
 
     def _check(self):
-        return len(self.s.split()) == 1
+        return len(self.s.split()) == 1 and len(self.s) < 50
 
     def _result(self):
         if not self._check(): return []
