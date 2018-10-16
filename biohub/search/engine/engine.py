@@ -88,7 +88,10 @@ class EngineDB(EngineBase):
     type = 'db'
 
     def _rank(self):
-        return 4
+        if self._check():
+            return 4
+        else:
+            return -1
 
     def _check(self):
         return len(self.s.split()) == 1
