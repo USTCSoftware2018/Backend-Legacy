@@ -1,6 +1,6 @@
 from .parser import PeopleParser, TimeParser, LabelParser
 
-def test():
+def test(debug=None):
     s = "reports by some_people from 2017/01/23 to 2018/10/28 #some_label"
     time_parser = TimeParser(s)
     people_parser = PeopleParser(s)
@@ -25,7 +25,8 @@ def test():
     return {
         "filters": filters,
         "ranks": ranks,
-        "data": data
+        "data": data,
+        "debug": debug
     }
 
 
@@ -33,8 +34,8 @@ class Engine:
     def __init__(self):
         pass
 
-    def test(self):
-        return test()
+    def test(self, debug=None):
+        return test(debug=debug)
 
 def main():
     print(test())

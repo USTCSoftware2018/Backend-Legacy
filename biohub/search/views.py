@@ -7,8 +7,9 @@ from rest_framework import viewsets, mixins, decorators
 from .engine import Engine
 
 
-@decorators.api_view(['GET'])
+@decorators.api_view(['GET', 'POST'])
 def search(request):
+    s = request.GET.get('s') or request.data.get('s')
     engine = Engine()
-    result = engine.test()
+    result = engine.test(debug=s)
     return Response(result)
