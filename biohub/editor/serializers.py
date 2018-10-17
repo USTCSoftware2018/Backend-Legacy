@@ -81,13 +81,13 @@ class ReportInfoSerializer(serializers.BaseSerializer):
             return Report.objects.get(**data)
 
     def isliked(self, instance):
-        if 'user' not in self.context or not self.context['user']:
+        if 'user' not in self.context or not self.context['user'] or not self.context['user'].is_active:
             return False
 
         return instance.star_set.filter(starrer=self.context['user']).count() >= 1
 
     def iscollected(self, instance):
-        if 'user' not in self.context or not self.context['user']:
+        if 'user' not in self.context or not self.context['user'] or not self.context['user'].is_active:
             return False
 
         return instance.collection_set.filter(collector=self.context['user']).count() >= 1
