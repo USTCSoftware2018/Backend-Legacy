@@ -19,7 +19,7 @@ class UsernameValidator(validators.RegexValidator):
 class PasswordValidator(object):
 
     def validate(self, password, user=None):
-        is_valid = re.search(r'^[\w!@#\$%\^&\*\(\)_\+=-]{6,20}$', password) \
+        is_valid = re.search(r'^[\w!@#\$%\^&\*\(\)_\+=\-\.\?,]{6,20}$', password) \
             and re.search(r'\d', password) and re.search(r'[a-zA-Z]', password)
 
         if not is_valid:
