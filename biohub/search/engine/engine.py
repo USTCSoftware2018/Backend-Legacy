@@ -90,7 +90,7 @@ class Engine:
         self._keyword = ""
 
     def keyword(self):
-        return self._keyword
+        return self._keyword.strip()
 
     def filters(self):
         if not self._filters:
