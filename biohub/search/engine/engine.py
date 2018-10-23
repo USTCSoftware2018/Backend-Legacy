@@ -87,13 +87,14 @@ class Engine:
     def __init__(self, s, filters=None):
         self.s = s
         self._filters = filters
+        self._keyword = ""
 
     def keyword(self):
-        return "keyword"
+        return self._keyword
 
     def filters(self):
         if not self._filters:
-            self.s, self._filters = FilterParser(self.s).parse()
+            self._keyword, self._filters = FilterParser(self.s).parse()
         return self._filters
 
     def result(self):
