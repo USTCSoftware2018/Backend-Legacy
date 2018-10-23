@@ -157,7 +157,7 @@ class Filters:
             self.add_filter(FilterItem(FilterType.USER, FilterRel.IN, addr))
 
     def rule_reports_by_user(self):
-        p = re.compile(r'reports? by (\w+)', re.I)
+        p = re.compile(r'by (\w+)', re.I)
         match_obj = p.search(self.s)
         if match_obj:
             user = match_obj.group(1)
