@@ -100,7 +100,7 @@ class EngineDB(EngineBase):
         if self._check():
             return 4
         else:
-            return -1
+            return 50
 
     def _check(self):
         return len(self.keyword.split()) == 1 and len(self.keyword) < 50
@@ -122,7 +122,7 @@ class EngineBLAST(EngineBase):
         if self._check():
             return 0
         else:
-            return -1
+            return 100
 
     def _result(self):
         return []
