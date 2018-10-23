@@ -53,4 +53,4 @@ class Keyword:
         for label in labels:
             results.add('#' + self._convert_underscore(label['label_name']))
 
-        return results - self.FUNCTIONAL_WORDS
+        return {keyword.strip() for keyword in results - self.FUNCTIONAL_WORDS if keyword.strip()}
