@@ -46,8 +46,8 @@ class Keyword:
             actualname_parts = self._split(user['actualname'])
             location_parts = self._split(user['location'])
 
-            results += set(actualname_parts)
-            results += set(location_parts)
+            results = results.union(set(actualname_parts))
+            results = results.union(set(location_parts))
             results.add('_'.join(actualname_parts))
             results.add('_'.join(location_parts))
 
