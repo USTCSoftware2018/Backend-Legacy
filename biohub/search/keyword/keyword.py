@@ -13,6 +13,12 @@ class Keyword:
          'after', 'few', 'whom', 't', 'being', 'if', 'theirs', 'my', 'against', 'a', 'by', 'doing', 'it', 'how',
          'further', 'was', 'here', 'than'}
 
+    PRESET_WORDS = {'today', 'yesterday',
+                    'week', 'year',
+                    'morning', 'afternoon', 'night',
+                    'after', 'before',
+                    'later', 'from', 'past'}
+
     @classmethod
     def _convert_underscore(cls, x: str):
         if not x:
@@ -53,4 +59,7 @@ class Keyword:
         for label in labels:
             results.add('#' + self._convert_underscore(label['label_name']))
 
-        return {keyword.strip() for keyword in results - self.FUNCTIONAL_WORDS if keyword.strip()}
+        results = {keyword.strip() for keyword in results - self.FUNCTIONAL_WORDS if keyword.strip()}
+        results = results.union(self.PRESET_WORDS)
+
+        return results
