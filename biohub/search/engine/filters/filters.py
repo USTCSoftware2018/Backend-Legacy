@@ -116,7 +116,8 @@ class FilterParser:
 
         filter_words = [
             'reports', 'report', 'users', 'user',
-            'before', 'after', 'until', 'till', 'since'
+            'before', 'after', 'until', 'till', 'since',
+            'from', 'to'
         ]
 
         for filter_word in filter_words:
