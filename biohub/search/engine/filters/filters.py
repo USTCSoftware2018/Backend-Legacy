@@ -83,11 +83,9 @@ class FilterParser:
             label = match_obj.group(1)
             self.add_filter(FilterItem(FilterType.LABEL, FilterRel.EQ, label))
 
-    def _mktime(self, t):
-        import time
-        t = float(t)
-        local_str_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(t / 1000.0))
-        return local_str_time
+    def parse_time(self, t):
+        import dateutil.parser
+        return dateutil.parser.parse(t)
 
     def rule_time(self):
         if len(self.s.split()) <= 1:
@@ -97,9 +95,9 @@ class FilterParser:
             start, end, match = parse(self.s)
             print('parse: ', start, end, match)
             if start:
-                self.add_filter(FilterItem(FilterType.TIME, FilterRel.GT, start))
+                self.add_filter(FilterItem(FilterType.TIME, FilterRel.GT, self.parse_time(start)))
             if end:
-                self.add_filter(FilterItem(FilterType.TIME, FilterRel.LT, end))
+                self.add_filter(FilterItem(FilterType.TIME, FilterRel.LT, self.parse_time(end)))
             if match:
                 for match_str in match:
                     self.s = self.s.replace(match_str, '')
