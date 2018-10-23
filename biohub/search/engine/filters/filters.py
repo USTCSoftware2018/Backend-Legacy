@@ -112,7 +112,6 @@ class FilterParser:
         self.rule_user_from_address()
         self.rule_time()
         f = self.__filters
-        f = [x.data() for x in f]
 
         filter_words = [
             'reports', 'report', 'users', 'user',

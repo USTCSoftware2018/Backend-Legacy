@@ -113,7 +113,7 @@ class Engine:
 
     def data(self):
         data = {
-            "filters": self.filters(),
+            "filters": [x.data for x in self.filters()],
             "data": self.result(),
             "debug": self.debug()
         }
