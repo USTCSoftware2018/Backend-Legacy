@@ -93,7 +93,7 @@ class Engine:
 
     def filters(self):
         if not self._filters:
-            self._filters = FilterParser(self.s).parse()
+            self.s, self._filters = FilterParser(self.s).parse()
         return self._filters
 
     def result(self):

@@ -46,6 +46,7 @@ class FilterParser:
     def rule_user_in_address(self):
         p = re.compile(r'users? in (\w+)', re.I)
         match_obj = p.search(self.s)
+        self.s = p.sub('', self.s, 16)
         if match_obj:
             addr = match_obj.group(1)
             self.add_filter(FilterItem(FilterType.USER, FilterRel.IN, addr))
@@ -53,6 +54,7 @@ class FilterParser:
     def rule_user_from_address(self):
         p = re.compile(r'users? from (\w+)', re.I)
         match_obj = p.search(self.s)
+        self.s = p.sub('', self.s, 16)
         if match_obj:
             addr = match_obj.group(1)
             self.add_filter(FilterItem(FilterType.USER, FilterRel.IN, addr))
@@ -60,6 +62,7 @@ class FilterParser:
     def rule_reports_by_user(self):
         p = re.compile(r'by (\w+)', re.I)
         match_obj = p.search(self.s)
+        self.s = p.sub('', self.s, 16)
         if match_obj:
             user = match_obj.group(1)
             self.add_filter(FilterItem(FilterType.USER, FilterRel.EQ, user))
@@ -67,6 +70,7 @@ class FilterParser:
     def rule_reports_at_user(self):
         p = re.compile(r'@(\w+)', re.I)
         match_obj = p.search(self.s)
+        self.s = p.sub('', self.s, 16)
         if match_obj:
             user = match_obj.group(1)
             self.add_filter(FilterItem(FilterType.USER, FilterRel.EQ, user))
@@ -74,6 +78,7 @@ class FilterParser:
     def rule_label(self):
         p = re.compile(r'#(\w+)', re.I)
         match_obj = p.search(self.s)
+        self.s = p.sub('', self.s, 16)
         if match_obj:
             label = match_obj.group(1)
             self.add_filter(FilterItem(FilterType.LABEL, FilterRel.EQ, label))
@@ -95,6 +100,8 @@ class FilterParser:
                 self.add_filter(FilterItem(FilterType.TIME, FilterRel.GT, start))
             if end:
                 self.add_filter(FilterItem(FilterType.TIME, FilterRel.LT, end))
+            if match:
+                self.s = self.s.replace(match, '')
         except:
             return
 
@@ -107,4 +114,4 @@ class FilterParser:
         self.rule_time()
         f = self.__filters
         f = [x.data() for x in f]
-        return f
+        return (self.s, f)
