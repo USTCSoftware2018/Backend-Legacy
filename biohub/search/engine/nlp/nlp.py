@@ -9,6 +9,8 @@ classpath = os.pathsep.join([stanford_path + jar for jar in jars]) + os.pathsep 
 jpath = getDefaultJVMPath()
 
 def JVM_init():
+    if not isThreadAttachedToJVM():
+        attachThreadToJVM()
     if not isJVMStarted():
         startJVM(jpath, '-ae', '-Djava.class.path=%s' % (classpath))
 
