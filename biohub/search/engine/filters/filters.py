@@ -49,7 +49,7 @@ class FilterParser:
         self.s = p.sub('', self.s, 16)
         if match_obj:
             addr = match_obj.group(1)
-            self.add_filter(FilterItem(FilterType.USER, FilterRel.IN, addr))
+            self.add_filter(FilterItem(FilterType.ADDR, FilterRel.IN, addr))
 
     def rule_user_from_address(self):
         p = re.compile(r'users? from (\w+)', re.I)
@@ -57,7 +57,7 @@ class FilterParser:
         self.s = p.sub('', self.s, 16)
         if match_obj:
             addr = match_obj.group(1)
-            self.add_filter(FilterItem(FilterType.USER, FilterRel.IN, addr))
+            self.add_filter(FilterItem(FilterType.ADDR, FilterRel.IN, addr))
 
     def rule_reports_by_user(self):
         p = re.compile(r'by (\w+)', re.I)
