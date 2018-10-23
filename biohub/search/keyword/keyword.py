@@ -28,13 +28,13 @@ class Keyword:
 
     def get_keywords(self):
         """
-        usernames, actualnames, location, reports title, #labels/tags ...
+        usernames, actualnames, location, reports title, #labels/tags, organization, etc.
         "hejiyan" "Jiyan_He"
         """
         from biohub.accounts.models import User
         from biohub.editor.models import Report, Label
 
-        users = User.objects.values('username', 'actualname', 'location')
+        users = User.objects.values('username', 'actualname', 'location', 'organization')
         reports = Report.objects.values('title')
         labels = Label.objects.values('label_name')
 
@@ -45,11 +45,14 @@ class Keyword:
 
             actualname_parts = split_punct(user['actualname'])
             location_parts = split_punct(user['location'])
+            organization_parts = split_punct(user['organization'])
 
             results = results.union(set(actualname_parts))
             results = results.union(set(location_parts))
+            results = results.union(set(organization_parts))
             results.add('_'.join(actualname_parts))
             results.add('_'.join(location_parts))
+            results.add('_'.join(organization_parts))
 
         for report in reports:
             for word in split_punct(report['title']):
