@@ -45,11 +45,12 @@ class EngineUser(EngineBase):
                 q &= Q(location__icontains=f.value) | Q(organization__icontains=f.value)
 
         keywords = split_punct(self.keyword)
+        q2 = Q()
         for k in keywords:
-            q |= Q(username__icontains=k)
-            q |= Q(actualname__icontains=k)
+            q2 |= Q(username__icontains=k)
+            q2 |= Q(actualname__icontains=k)
 
-        return User.objects.filter(q).values()
+        return User.objects.filter(q & q2).values()
 
 
 class EngineReport(EngineBase):
@@ -81,12 +82,13 @@ class EngineReport(EngineBase):
                 q &= Q(label__label_name__icontains=f.value)
 
         keywords = split_punct(self.keyword)
+        q2 = Q()
         for k in keywords:
-            q |= Q(introduction__icontains=k)
-            q |= Q(title__icontains=k)
+            q2 |= Q(introduction__icontains=k)
+            q2 |= Q(title__icontains=k)
             # q |= Q(subroutines__icontains=k)
 
-        return Report.objects.filter(q).values()
+        return Report.objects.filter(q & q2).values()
 
 
 class EngineDB(EngineBase):
