@@ -100,8 +100,8 @@ class FilterParser:
 
     def parse(self):
         self.rule_label()
-        self.rule_reports_by_user()
         self.rule_reports_at_user()
+        self.rule_reports_by_user()
         self.rule_user_in_address()
         self.rule_user_from_address()
         self.rule_time()
