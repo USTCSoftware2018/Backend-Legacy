@@ -81,7 +81,7 @@ class FilterParser:
         if len(self.s.split()) <= 1:
             return None
         try:
-            from .nlp.nlp import parse
+            from ..nlp.nlp import parse
             start, end, match = parse(self.s)
             print('parse: ', start, end, match)
             if start:
