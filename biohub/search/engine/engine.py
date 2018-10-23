@@ -6,13 +6,14 @@ from ..utils import split_punct
 class EngineBase:
     type = 'base'
 
-    def __init__(self, keyword, filters):
+    def __init__(self, keyword, filters, s):
         """
         :param keyword: string
         :param filters: [FilterItem]
         """
         self.keyword = keyword
         self.filters = filters
+        self.s = s
 
     def _result(self):
         return []
@@ -27,12 +28,23 @@ class EngineBase:
             "data": self._result()
         }
 
+def get_rank(s, type):
+    if "report" in s:
+        if type == "user":
+            return 2
+        if type == "report":
+            return 1
+    if "user" in s:
+        if type == "user":
+            return 1
+        if type == "report":
+            return 2
 
 class EngineUser(EngineBase):
     type = 'user'
 
     def _rank(self):
-        return 1
+        return get_rank(self.s, self.type)
 
     def _result(self):
         from biohub.accounts.models import User
@@ -58,7 +70,7 @@ class EngineReport(EngineBase):
     type = 'report'
 
     def _rank(self):
-        return 2
+        return get_rank(self.s, self.type)
 
     def _result(self):
         from biohub.editor.models import Report
@@ -147,10 +159,10 @@ class Engine:
 
     def result(self):
         data = list()
-        data.append(EngineUser(self.keyword(), self.filters()).result())
-        data.append(EngineReport(self.keyword(), self.filters()).result())
-        data.append(EngineDB(self.keyword(), self.filters()).result())
-        data.append(EngineBLAST(self.keyword(), self.filters()).result())
+        data.append(EngineUser(self.keyword(), self.filters(), self.s).result())
+        data.append(EngineReport(self.keyword(), self.filters(), self.s).result())
+        data.append(EngineDB(self.keyword(), self.filters(), self.s).result())
+        data.append(EngineBLAST(self.keyword(), self.filters(), self.s).result())
         return data
 
     def debug(self):
