@@ -39,6 +39,12 @@ def get_rank(s, type):
             return 1
         if type == "report":
             return 2
+    if len(s.split()) >= 2:
+        if type == "user":
+            return 2
+        if type == "report":
+            return 1
+
 
 class EngineUser(EngineBase):
     type = 'user'
