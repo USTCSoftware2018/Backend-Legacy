@@ -1,3 +1,7 @@
+import re
+from string import punctuation, whitespace
+
+
 class Keyword:
     FUNCTIONAL_WORDS = {'ourselves', 'hers', 'between', 'yourself', 'but', 'again', 'there', 'about', 'once', 'during', 'out', 'very',
          'having', 'with', 'they', 'own', 'an', 'be', 'some', 'for', 'do', 'its', 'yours', 'such', 'into', 'of', 'most',
@@ -11,11 +15,16 @@ class Keyword:
          'further', 'was', 'here', 'than'}
 
     @classmethod
+    def _split(cls, x: str):
+        r = re.compile(r'[\s{}]+'.format(punctuation + whitespace))
+        return r.split(x)
+
+    @classmethod
     def _convert_underscore(cls, x: str):
         if not x:
             return None
 
-        return '_'.join(part.capitalize() for part in x.split())
+        return '_'.join(part.capitalize() for part in cls._split(x))
 
     def get_keywords(self):
         """
@@ -43,7 +52,7 @@ class Keyword:
                 results.add(location)
 
         for report in reports:
-            for word in report['title'].split():
+            for word in self._split(report['title']):
                 if word.lower() in self.FUNCTIONAL_WORDS:
                     results.add(word)
 
