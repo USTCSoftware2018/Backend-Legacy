@@ -1,1 +1,1 @@
-from .filters import FilterParser
+from .filters import *
