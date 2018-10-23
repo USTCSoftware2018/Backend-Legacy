@@ -101,7 +101,8 @@ class FilterParser:
             if end:
                 self.add_filter(FilterItem(FilterType.TIME, FilterRel.LT, end))
             if match:
-                self.s = self.s.replace(match, '')
+                for match_str in match:
+                    self.s = self.s.replace(match_str, '')
         except:
             return
 
