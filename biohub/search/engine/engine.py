@@ -52,7 +52,7 @@ class EngineUser(EngineBase):
 
         q = Q()
         for f in self.filters:
-            value = f.value.replace('_', punct_ws_re)
+            value = f.value.replace('_', punct_ws_re + '+')
 
             if f.type == FilterType.USER:
                 q &= Q(username__icontains=value) | Q(actualname__icontains=value)
@@ -80,7 +80,7 @@ class EngineReport(EngineBase):
 
         q = Q()
         for f in self.filters:
-            value = f.value.replace('_', punct_ws_re)
+            value = f.value.replace('_', punct_ws_re + '+')
 
             if f.type == FilterType.USER:
                 q &= Q(author__username__icontains=value)
