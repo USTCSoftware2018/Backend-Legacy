@@ -1,6 +1,6 @@
 from django.db.models import Q
 from .filters import FilterParser, FilterItem, FilterRel, FilterType
-from ..utils import split_punct
+from ..utils import split_punct, punct_ws_re
 
 
 class EngineBase:
@@ -52,16 +52,18 @@ class EngineUser(EngineBase):
 
         q = Q()
         for f in self.filters:
+            value = f.value.replace('_', punct_ws_re)
+
             if f.type == FilterType.USER:
-                q &= Q(username__icontains=f.value)
+                q &= Q(username__icontains=value) | Q(actualname__icontains=value)
             elif f.type == FilterType.ADDR:
-                q &= Q(location__icontains=f.value) | Q(organization__icontains=f.value)
+                q &= Q(location__iregex=value) | Q(organization__iregex=value)
 
         keywords = split_punct(self.keyword)
         q2 = Q()
         for k in keywords:
-            q2 |= Q(username__icontains=k)
-            q2 |= Q(actualname__icontains=k)
+            q2 |= Q(username__iregex=k)
+            q2 |= Q(actualname__iregex=k)
 
         return UserSerializer(User.objects.filter(q & q2).all(), many=True).data
 
@@ -78,32 +80,34 @@ class EngineReport(EngineBase):
 
         q = Q()
         for f in self.filters:
+            value = f.value.replace('_', punct_ws_re)
+
             if f.type == FilterType.USER:
-                q &= Q(author__username__icontains=f.value)
+                q &= Q(author__username__icontains=value)
 
             elif f.type == FilterType.TIME:
                 if f.rel == FilterRel.GT:
-                    q &= Q(ntime__gt=f.value)
+                    q &= Q(ntime__gt=value)
                 elif f.rel == FilterRel.LT:
-                    q &= Q(ntime__lt=f.value)
+                    q &= Q(ntime__lt=value)
                 elif f.rel == FilterRel.EQ:
-                    q &= Q(ntime=f.value)
+                    q &= Q(ntime=value)
 
             elif f.type == FilterType.TITLE:
-                q &= Q(title__icontains=f.value)
+                q &= Q(title__iregex=value)
 
             elif f.type == FilterType.LABEL:
-                q &= Q(label__label_name__icontains=f.value)
+                q &= Q(label__label_name__iregex=value)
 
             elif f.type == FilterType.ADDR:
-                q &= Q(author__location__icontains=f.value) | Q(author__organization__icontains=f.value)
+                q &= Q(author__location__iregex=value) | Q(author__organization__iregex=value)
 
         keywords = split_punct(self.keyword)
         q2 = Q()
         for k in keywords:
-            q2 |= Q(introduction__icontains=k)
-            q2 |= Q(title__icontains=k)
-            # q |= Q(subroutines__icontains=k)
+            q2 |= Q(introduction__iregex=k)
+            q2 |= Q(title__iregex=k)
+            # q |= Q(subroutines__iregex=k)
 
         return ReportInfoSerializer(Report.objects.filter(q & q2).all(), many=True).data
 
