@@ -3,11 +3,8 @@ import requests
 NLP_SERVER = 'http://nlp.biohub.tech'
 
 def resolve(text):
-    try:
-        r = requests.post(NLP_SERVER, json={'text', text}, timeout=3)
-        return r.json()
-    except:
-        return []
+    r = requests.post(NLP_SERVER, json={'text', text}, timeout=3)
+    return r.json()
 
 def parse(text):
     """
