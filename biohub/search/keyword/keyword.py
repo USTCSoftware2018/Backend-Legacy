@@ -41,15 +41,15 @@ class Keyword:
         results = set()
         for user in users:
             results.add(user['username'])
+            results.add('@' + user['username'])
 
-            actualname = self._convert_underscore(user['actualname'])
-            location = self._convert_underscore(user['location'])
+            actualname_parts = self._split(user['actualname'])
+            location_parts = self._split(user['location'])
 
-            if actualname:
-                results.add(actualname)
-
-            if location:
-                results.add(location)
+            results += set(actualname_parts)
+            results += set(location_parts)
+            results.add('_'.join(actualname_parts))
+            results.add('_'.join(location_parts))
 
         for report in reports:
             for word in self._split(report['title']):
