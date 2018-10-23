@@ -83,6 +83,9 @@ class EngineReport(EngineBase):
             elif f.type == FilterType.LABEL:
                 q &= Q(label__label_name__icontains=f.value)
 
+            elif f.type == FilterType.ADDR:
+                q &= Q(author__location__icontains=f.value) | Q(author__organization__icontains=f.value)
+
         keywords = split_punct(self.keyword)
         q2 = Q()
         for k in keywords:
