@@ -4,5 +4,6 @@ from rest_framework.routers import DefaultRouter
 from . import views
 
 register_api(r'^', [
-    url(r'^search/', views.search, name='search')
+    url(r'^search/', views.search, name='search'),
+    url(r'^keywords/', views.keywords, name='keywords')
 ], 'search')
