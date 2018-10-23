@@ -54,6 +54,8 @@ class EngineUser(EngineBase):
         for f in self.filters:
             if isinstance(f.value, str):
                 value = f.value.replace('_', punct_ws_re)
+            else:
+                value = f.value
 
             if f.type == FilterType.USER:
                 q &= Q(username__icontains=value) | Q(actualname__icontains=value)
@@ -83,6 +85,8 @@ class EngineReport(EngineBase):
         for f in self.filters:
             if isinstance(f.value, str):
                 value = f.value.replace('_', punct_ws_re)
+            else:
+                value = f.value
 
             if f.type == FilterType.USER:
                 q &= Q(author__username__icontains=value)
