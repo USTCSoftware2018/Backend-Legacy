@@ -59,4 +59,4 @@ class Keyword:
         for label in labels:
             results.add('#' + self._convert_underscore(label['label_name']))
 
-        return results ^ self.FUNCTIONAL_WORDS
+        return results - self.FUNCTIONAL_WORDS
