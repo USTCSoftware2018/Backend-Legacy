@@ -182,10 +182,10 @@ class Filters:
         try:
             from .nlp.nlp import parse
             start, end, match = parse(self.s)
-            if match == "":
-                return
-            self.add_filter(FilterItem(FilterType.TIME, FilterRel.GT, self._mktime(start)))
-            self.add_filter(FilterItem(FilterType.TIME, FilterRel.LT, self._mktime(end)))
+            if start:
+                self.add_filter(FilterItem(FilterType.TIME, FilterRel.GT, start))
+            if end:
+                self.add_filter(FilterItem(FilterType.TIME, FilterRel.LT, end))
         except:
             return
 

@@ -1,25 +1,29 @@
-from jpype import *
-import tempfile
-import os
+import requests
 
-stanford_path = '/root/NLP/stanford-corenlp/'
-jars = ['ejml-0.23.jar', 'javax.activation-api-1.2.0.jar', 'javax.activation-api-1.2.0-sources.jar', 'javax.json-api-1.0-sources.jar', 'javax.json.jar', 'jaxb-api-2.4.0-b180830.0359.jar', 'jaxb-api-2.4.0-b180830.0359-sources.jar', 'jaxb-core-2.3.0.1.jar', 'jaxb-core-2.3.0.1-sources.jar', 'jaxb-impl-2.4.0-b180830.0438.jar', 'jaxb-impl-2.4.0-b180830.0438-sources.jar', 'joda-time-2.9-sources.jar', 'joda-time.jar', 'jollyday-0.4.9-sources.jar', 'jollyday.jar', 'protobuf.jar', 'slf4j-api.jar', 'slf4j-simple.jar', 'stanford-corenlp-3.9.2.jar', 'stanford-corenlp-3.9.2-javadoc.jar', 'stanford-corenlp-3.9.2-models.jar', 'stanford-corenlp-3.9.2-sources.jar', 'xom-1.2.10-src.jar', 'xom.jar']
+NLP_SERVER = 'http://nlp.biohub.tech'
 
-classpath = os.pathsep.join([stanford_path + jar for jar in jars]) + os.pathsep + '/root/NLP'
-jpath = getDefaultJVMPath()
-
-def JVM_init():
-    if not isJVMStarted():
-        startJVM(jpath, '-ae', '-Djava.class.path=%s' % (classpath))
-        attachThreadToJVM()
-    if not isThreadAttachedToJVM():
-        attachThreadToJVM()
+def resolve(text):
+    try:
+        r = requests.post(NLP_SERVER, json={'text', text}, timeout=3)
+        return r.json()
+    except:
+        return []
 
 def parse(text):
-    JVM_init()
-    BiohubNLP = JClass('BiohubNLP')
-    start, end, match = BiohubNLP.Parse(text)
-    return start[:], end[:], match[:]
+    """
+    return (start: string, end: string, match: [string])
+    """
+    res = resolve(text)
+    if len(res) == 0:
+        return (None, None, None)
+    if len(res) == 1:
+        t0 = res[0]
+        return (t0.get("resolved"), None, [t0.get("original")])
+    if len(res) >= 2:
+        t0 = res[0]
+        t1 = res[1]
+        return (t0.get("resolved"), t1.get("resolved"), [t0.get("original"), t1.get("original")])
+
 
 if __name__ == "__main__":
     print(parse("yesterday"))
