@@ -116,9 +116,12 @@ class FilterParser:
         f = self.__filters
         f = [x.data() for x in f]
 
-        self.s = self.s.replace('reports', '')
-        self.s = self.s.replace('report', '')
-        self.s = self.s.replace('users', '')
-        self.s = self.s.replace('user', '')
+        filter_words = [
+            'reports', 'report', 'users', 'user',
+            'before', 'after', 'until', 'till', 'since'
+        ]
+
+        for filter_word in filter_words:
+            self.s = self.s.replace(filter_word, '')
 
         return (self.s, f)
