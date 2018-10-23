@@ -36,6 +36,7 @@ class EngineUser(EngineBase):
 
     def _result(self):
         from biohub.accounts.models import User
+        from biohub.accounts.serializers import UserInfoSerializer
 
         q = Q()
         for f in self.filters:
@@ -50,7 +51,7 @@ class EngineUser(EngineBase):
             q2 |= Q(username__icontains=k)
             q2 |= Q(actualname__icontains=k)
 
-        return User.objects.filter(q & q2).values()
+        return UserInfoSerializer(User.objects.filter(q & q2).all(), many=True).data
 
 
 class EngineReport(EngineBase):
@@ -61,6 +62,7 @@ class EngineReport(EngineBase):
 
     def _result(self):
         from biohub.editor.models import Report
+        from biohub.editor.serializers import ReportInfoSerializer
 
         q = Q()
         for f in self.filters:
@@ -88,7 +90,7 @@ class EngineReport(EngineBase):
             q2 |= Q(title__icontains=k)
             # q |= Q(subroutines__icontains=k)
 
-        return Report.objects.filter(q & q2).values()
+        return ReportInfoSerializer(Report.objects.filter(q & q2).all(), many=True).data
 
 
 class EngineDB(EngineBase):
