@@ -156,6 +156,13 @@ class Filters:
             addr = match_obj.group(1)
             self.add_filter(FilterItem(FilterType.USER, FilterRel.IN, addr))
 
+    def rule_user_from_address(self):
+        p = re.compile(r'users? from (\w+)', re.I)
+        match_obj = p.search(self.s)
+        if match_obj:
+            addr = match_obj.group(1)
+            self.add_filter(FilterItem(FilterType.USER, FilterRel.IN, addr))
+
     def rule_reports_by_user(self):
         p = re.compile(r'by (\w+)', re.I)
         match_obj = p.search(self.s)
@@ -194,6 +201,7 @@ class Filters:
         self.rule_label()
         self.rule_reports_by_user()
         self.rule_user_in_address()
+        self.rule_user_from_address()
         self.rule_time()
         f = self.__filters
         f = [x.data() for x in f]
