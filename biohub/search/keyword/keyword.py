@@ -1,5 +1,4 @@
-import re
-from string import punctuation, whitespace
+from ..utils import split_punct
 
 
 class Keyword:
@@ -15,16 +14,11 @@ class Keyword:
          'further', 'was', 'here', 'than'}
 
     @classmethod
-    def _split(cls, x: str):
-        r = re.compile(r'[\s{}]+'.format(punctuation + whitespace))
-        return r.split(x)
-
-    @classmethod
     def _convert_underscore(cls, x: str):
         if not x:
             return None
 
-        return '_'.join(part.capitalize() for part in cls._split(x))
+        return '_'.join(part.capitalize() for part in split_punct(x))
 
     def get_keywords(self):
         """
@@ -43,8 +37,8 @@ class Keyword:
             results.add(user['username'])
             results.add('@' + user['username'])
 
-            actualname_parts = self._split(user['actualname'])
-            location_parts = self._split(user['location'])
+            actualname_parts = split_punct(user['actualname'])
+            location_parts = split_punct(user['location'])
 
             results = results.union(set(actualname_parts))
             results = results.union(set(location_parts))
@@ -52,7 +46,7 @@ class Keyword:
             results.add('_'.join(location_parts))
 
         for report in reports:
-            for word in self._split(report['title']):
+            for word in split_punct(report['title']):
                 if word.lower() in self.FUNCTIONAL_WORDS:
                     results.add(word)
 

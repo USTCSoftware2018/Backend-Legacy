@@ -1,4 +1,7 @@
-from .filters import FilterParser
+from django.db.models import Q
+from .filters import FilterParser, FilterItem, FilterRel, FilterType
+from ..utils import split_punct
+
 
 class EngineBase:
     type = 'base'
@@ -32,8 +35,21 @@ class EngineUser(EngineBase):
         return 1
 
     def _result(self):
-        return [{"id":1,"followed":False,"stat":{"star_count":0,"report_count":17,"following_count":10,"follower_count":6,"experience_count":0},"avatar_url":"https://api.biohub.tech/media/2.jpg","last_login":"2018-10-16T22:37:00.808568+08:00","username":"test","actualname":"","organization":"MIT","email":"test@email.com","location":"Boston","site_url":"","description":"description"},
-{"id":2,"followed":False,"stat":{"star_count":0,"report_count":0,"following_count":2,"follower_count":3,"experience_count":0},"avatar_url":"https://www.gravatar.com/avatar/94fba03762323f286d7c3ca9e001c541?s=328&r=g&d=identicon","last_login":"2018-10-12T15:55:23.252976+08:00","username":"test1","actualname":"","organization":"","email":"test1@test.com","location":"","site_url":"","description":""}]
+        from biohub.accounts.models import User
+
+        q = Q()
+        for f in self.filters:
+            if f.type == FilterType.USER:
+                q &= Q(username__icontains=f.value)
+            elif f.type == FilterType.ADDR:
+                q &= Q(location__icontains=f.value) | Q(organization__icontains=f.value)
+
+        keywords = split_punct(self.keyword)
+        for k in keywords:
+            q |= Q(username__icontains=k)
+            q |= Q(actualname__icontains=k)
+
+        return User.objects.filter(q).values()
 
 
 class EngineReport(EngineBase):
@@ -43,9 +59,34 @@ class EngineReport(EngineBase):
         return 2
 
     def _result(self):
-        return [
-{"id":16,"title":"16","author":{"id":1,"avatar_url":"https://api.biohub.tech/media/2.jpg","description":"description","followed":False,"username":"test"},"iscollected":False,"abstract":"WOASN DJFAS\nsanifoanf","commentsnum":13,"labels":[{"id":12,"report_count":1,"name":"hello"},{"id":13,"report_count":1,"name":"babababababa"},{"id":14,"report_count":1,"name":"fhdksjhfkjdsahfkjsadhkjfhsdakj"}],"likesnum":0,"isliked":False},
-{"id":4,"title":"asdfbaisdf","author":{"id":1,"avatar_url":"https://api.biohub.tech/media/2.jpg","description":"description","followed":False,"username":"test"},"iscollected":False,"abstract":"fasbdfhjabef","commentsnum":5,"labels":[],"likesnum":2,"isliked":False}]
+        from biohub.editor.models import Report
+
+        q = Q()
+        for f in self.filters:
+            if f.type == FilterType.USER:
+                q &= Q(author__username__icontains=f.value)
+
+            elif f.type == FilterType.TIME:
+                if f.rel == FilterRel.GT:
+                    q &= Q(ntime__gt=f.value)
+                elif f.rel == FilterRel.LT:
+                    q &= Q(ntime__lt=f.value)
+                elif f.rel == FilterRel.EQ:
+                    q &= Q(ntime=f.value)
+
+            elif f.type == FilterType.TITLE:
+                q &= Q(title__icontains=f.value)
+
+            elif f.type == FilterType.LABEL:
+                q &= Q(label__label_name__icontains=f.value)
+
+        keywords = split_punct(self.keyword)
+        for k in keywords:
+            q |= Q(introduction__icontains=k)
+            q |= Q(title__icontains=k)
+            # q |= Q(subroutines__icontains=k)
+
+        return Report.objects.filter(q).values()
 
 
 class EngineDB(EngineBase):
