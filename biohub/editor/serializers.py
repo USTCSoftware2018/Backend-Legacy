@@ -14,7 +14,10 @@ class CreatableSlugRelatedField(serializers.SlugRelatedField):
     """
     def to_internal_value(self, data):
         try:
-            return self.get_queryset().get_or_create(**{self.slug_field: data})[0]
+            if isinstance(data, str):
+                return self.get_queryset().get_or_create(**{self.slug_field: data.strip()})[0]
+            else:
+                return self.get_queryset().get_or_create(**{self.slug_field: data})[0]
         except ObjectDoesNotExist:
             self.fail('does_not_exist', slug_name=self.slug_field, value=smart_text(data))
         except (TypeError, ValueError):
@@ -29,7 +32,7 @@ class LabelInfoSerializer(serializers.Serializer):
     name = serializers.CharField()
 
     def to_internal_value(self, data):
-        label, _ = Label.objects.get_or_create(name=data)
+        label, _ = Label.objects.get_or_create(label_name=data)
         return label
 
     def to_representation(self, instance):
