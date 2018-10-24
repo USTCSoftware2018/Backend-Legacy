@@ -58,6 +58,7 @@ def get_rank(s, type):
             return 3
         if type == "report":
             return 2
+    return 5
 
 
 class EngineUser(EngineBase):
