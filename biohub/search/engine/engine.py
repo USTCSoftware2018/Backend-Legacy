@@ -1,3 +1,4 @@
+from itertools import groupby, chain
 from django.db.models import Q
 from .filters import FilterParser, FilterItem, FilterRel, FilterType
 from ..utils import split_punct, punct_ws_re
@@ -185,12 +186,26 @@ class EngineBrick(EngineBase):
             if f.type == FilterType.USER:
                 q &= Q(author__iregex=value)
 
+        # Search part names
         q2 = Q()
-        keywords = split_punct(self.keyword)
-        for k in keywords:
-            q2 |= Q(part_name__istartswith=k)
-            q2 |= Q(description__icontains=k)
-        return BiobrickSerializer(Biobrick.objects.filter(q & q2).all(), many=True).data
+        q2 |= Q(part_name__istartswith=self.keyword)
+
+        qs = Biobrick.objects.filter(q & q2).all()[:5]
+
+        # Search descriptions
+        q = Q()
+        for k in split_punct(self.keyword):
+            if k.lower() not in ['bba', 'sp']:
+                q |= Q(description__icontains=k)
+        qs2 = Biobrick.objects.filter(q)[:15]
+
+        # Merge and Uniquify
+        results = list(qs)
+        for brick in qs2:
+            if brick not in results:
+                results.append(brick)
+
+        return BiobrickSerializer(results, many=True).data
 
 
 class Engine:
