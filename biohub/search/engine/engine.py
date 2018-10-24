@@ -172,28 +172,25 @@ class EngineBrick(EngineBase):
             return -1
 
     def _result(self):
-        return [{
-    "desc": "Intermediate part from assembly 236",
-    "weight": 0.119047619047619,
-    "part_type": "Intermediate",
-    "author": "Randy Rettberg",
-    "part_status": "",
-    "sample_status": "Discontinued",
-    "uses": 0,
-    "part_name": "BBa_S01288",
-    "status": "Deleted"
-}, {
-    "desc": "double terminator (B0012-B0011)",
-    "weight": 0.7641007815122614,
-    "part_type": "Terminator",
-    "author": "Reshma Shetty",
-    "part_status": "Released HQ 2013",
-    "sample_status": "In stock",
-    "uses": 266,
-    "part_name": "BBa_B0014",
-    "status": "Available"
-}
-]
+        from biohub.biobrick.models import Biobrick
+        from biohub.biobrick.serializers import BiobrickSerializer
+
+        q = Q()
+        for f in self.filters:
+            if isinstance(f.value, str):
+                value = f.value.replace('_', punct_ws_re)
+            else:
+                value = f.value
+
+            if f.type == FilterType.USER:
+                q &= Q(author__iregex=value)
+
+        q2 = Q()
+        keywords = split_punct(self.keyword)
+        for k in keywords:
+            q2 |= Q(part_name__istartswith=k)
+            q2 |= Q(description__icontains=k)
+        return BiobrickSerializer(Biobrick.objects.filter(q & q2).all(), many=True).data
 
 
 class Engine:
