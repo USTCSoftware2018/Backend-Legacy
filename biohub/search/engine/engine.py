@@ -169,7 +169,7 @@ class EngineBrick(EngineBase):
         if self._check():
             return 0
         else:
-            return 20
+            return -1
 
     def _result(self):
         return [{
