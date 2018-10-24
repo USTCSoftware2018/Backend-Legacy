@@ -207,17 +207,17 @@ class EngineBrick(EngineBase):
         qs = Biobrick.objects.filter(q & q2).all()[:5]
 
         # Search descriptions
-        q = Q()
-        for k in split_punct(self.keyword):
-            if k.lower() not in ['bba', 'sp']:
-                q |= Q(description__icontains=k)
-        qs2 = Biobrick.objects.filter(q)[:15]
+        # q = Q()
+        # for k in split_punct(self.keyword):
+        #     if k.lower() not in ['bba', 'sp']:
+        #         q |= Q(description__icontains=k)
+        # qs2 = Biobrick.objects.filter(q)[:15]
 
         # Merge and Uniquify
         results = list(qs)
-        for brick in qs2:
-            if brick not in results:
-                results.append(brick)
+        # for brick in qs2:
+        #     if brick not in results:
+        #         results.append(brick)
 
         return BiobrickSerializer(results, many=True).data
 
