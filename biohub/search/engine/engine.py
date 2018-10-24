@@ -172,7 +172,28 @@ class EngineBrick(EngineBase):
             return 20
 
     def _result(self):
-        return ['brick1', 'brick2']
+        return [{
+    "desc": "Intermediate part from assembly 236",
+    "weight": 0.119047619047619,
+    "part_type": "Intermediate",
+    "author": "Randy Rettberg",
+    "part_status": "",
+    "sample_status": "Discontinued",
+    "uses": 0,
+    "part_name": "BBa_S01288",
+    "status": "Deleted"
+}, {
+    "desc": "double terminator (B0012-B0011)",
+    "weight": 0.7641007815122614,
+    "part_type": "Terminator",
+    "author": "Reshma Shetty",
+    "part_status": "Released HQ 2013",
+    "sample_status": "In stock",
+    "uses": 266,
+    "part_name": "BBa_B0014",
+    "status": "Available"
+}
+]
 
 
 class Engine:
