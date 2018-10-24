@@ -159,6 +159,22 @@ class EngineBLAST(EngineBase):
         return ['blast']
 
 
+class EngineBrick(EngineBase):
+    type = 'brick'
+
+    def _check(self):
+        return self.s.lower().startswith('bba_') or self.s.lower().startswith('psb')
+
+    def _rank(self):
+        if self._check():
+            return 0
+        else:
+            return 20
+
+    def _result(self):
+        return ['brick1', 'brick2']
+
+
 class Engine:
     def __init__(self, s, filters=None):
         self.s = s
@@ -179,6 +195,7 @@ class Engine:
         data.append(EngineReport(self.keyword(), self.filters(), self.s).result())
         data.append(EngineDB(self.keyword(), self.filters(), self.s).result())
         data.append(EngineBLAST(self.keyword(), self.filters(), self.s).result())
+        data.append(EngineBrick(self.keyword(), self.filters(), self.s).result())
         return data
 
     def debug(self):
