@@ -156,7 +156,7 @@ class EngineBLAST(EngineBase):
             return 100
 
     def _result(self):
-        return []
+        return ['blast']
 
 
 class Engine:
