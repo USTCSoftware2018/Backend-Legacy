@@ -29,22 +29,35 @@ class EngineBase:
             "data": self._result()
         }
 
+
 def get_rank(s, type):
+    s = s.lower()
     if "report" in s:
         if type == "user":
             return 2
         if type == "report":
             return 1
+        if type == "brick":
+            return -1
     if "user" in s:
         if type == "user":
             return 1
         if type == "report":
             return 2
-    if len(s.split()) >= 3:
+        if type == "brick":
+            return -1
+    if "brick" in s:
         if type == "user":
             return 2
         if type == "report":
+            return 3
+        if type == "brick":
             return 1
+    if len(s.split()) >= 3:
+        if type == "user":
+            return 3
+        if type == "report":
+            return 2
 
 
 class EngineUser(EngineBase):
@@ -170,7 +183,7 @@ class EngineBrick(EngineBase):
         if self._check():
             return 0
         else:
-            return -1
+            return get_rank(self.s, self.type)
 
     def _result(self):
         from biohub.biobrick.models import Biobrick
