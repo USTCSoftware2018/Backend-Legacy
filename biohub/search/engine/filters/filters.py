@@ -124,7 +124,7 @@ class FilterParser:
         f = self.__filters
 
         filter_words = [
-            'reports', 'report', 'users', 'user',
+            'reports', 'report', 'users', 'user', 'biobricks', 'biobrick', 'bricks', 'brick',
             'before', 'after', 'until', 'till', 'since',
             'from', 'to', 'about', 'of'
         ]
