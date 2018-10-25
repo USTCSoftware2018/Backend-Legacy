@@ -60,17 +60,17 @@ class Report(models.Model):
 
         :return: a sorter can be used for QuerySet.order_by()
         """
-        return F('views') + (F('star') + F('comments')) * 2
+        return F('views') + (Count(F('star')) + Count(F('comments'))) * 2
 
     @staticmethod
     def get_popular():
         sorter = Report.get_sorter()
-        return Report.objects.annotate(points=Count(sorter)).order_by('-points').distinct()
+        return Report.objects.annotate(points=sorter).order_by('-points').distinct()
 
     @staticmethod
     def get_user_popular(user):
         sorter = Report.get_sorter()
-        return Report.objects.filter(author=user).annotate(points=Count(sorter)).order_by('-points').distinct()
+        return Report.objects.filter(author=user).annotate(points=sorter).order_by('-points').distinct()
 
 
 class Step(models.Model):
