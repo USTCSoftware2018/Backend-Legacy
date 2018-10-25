@@ -60,7 +60,7 @@ class Report(models.Model):
 
         :return: a sorter can be used for QuerySet.order_by()
         """
-        return F('views') + (F('star') + F('comments')) * 2
+        return F('views') + (Count(F('star')) + Count(F('comments'))) * 2
 
     @staticmethod
     def get_popular():
