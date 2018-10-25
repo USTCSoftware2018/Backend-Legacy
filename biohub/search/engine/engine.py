@@ -162,7 +162,7 @@ class EngineBLAST(EngineBase):
     type = 'blast'
 
     def _check(self):
-        return len(self.keyword.split()) == 1 and len(self.keyword) >= 30 and set("ATCG") == set(self.keyword.upper())
+        return len(self.keyword.split()) == 1 and len(self.keyword) >= 10 and set("ATCG") == set(self.keyword.upper())
 
     def _rank(self):
         if self._check():
