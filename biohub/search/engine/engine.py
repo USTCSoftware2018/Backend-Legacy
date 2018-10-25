@@ -34,7 +34,7 @@ def get_rank(s, type):
     s = s.lower()
     if "report" in s:
         if type == "user":
-            return 2
+            return -1
         if type == "report":
             return 1
         if type == "brick":
@@ -43,14 +43,14 @@ def get_rank(s, type):
         if type == "user":
             return 1
         if type == "report":
-            return 2
+            return -1
         if type == "brick":
             return -1
     if "brick" in s:
         if type == "user":
-            return 2
+            return -1
         if type == "report":
-            return 3
+            return -1
         if type == "brick":
             return 1
     if len(s.split()) >= 3:
