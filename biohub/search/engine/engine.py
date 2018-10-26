@@ -205,6 +205,7 @@ class EngineBrick(EngineBase):
                 q &= SQ(author__contains=value)
 
         qs = qs.filter(q)
+        qs.load_all()
 
         # Filter by part names
         qs_names = qs.filter(name__contains=self.keyword)[:5]
