@@ -211,7 +211,10 @@ class EngineBrick(EngineBase):
         qs_names = qs.filter(name__contains=self.keyword).order_by(*ordering)[:5]
 
         # Search descriptions
-        qs_desc = qs.filter(text__contains=self.keyword).order_by(*ordering)[:25]
+        q = SQ()
+        for keyword in split_punct(self.keyword):
+            q |= SQ(text__contains=keyword)
+        qs_desc = qs.filter(q).order_by(*ordering)[:25]
 
         # Merge and Uniquify
         results = list(qs_names)
