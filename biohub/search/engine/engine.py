@@ -1,5 +1,5 @@
-from itertools import groupby, chain
 from django.db.models import Q
+from haystack.query import SearchQuerySet, SQ
 from .filters import FilterParser, FilterItem, FilterRel, FilterType
 from ..utils import split_punct, punct_ws_re
 
@@ -189,10 +189,12 @@ class EngineBrick(EngineBase):
             return get_rank(self.s, self.type)
 
     def _result(self):
-        from biohub.biobrick.models import Biobrick
         from biohub.biobrick.serializers import BiobrickSerializer
 
-        q = Q()
+        qs = SearchQuerySet()
+
+        # Filter by author
+        q = SQ()
         for f in self.filters:
             if isinstance(f.value, str):
                 value = f.value.replace('_', punct_ws_re)
@@ -200,26 +202,21 @@ class EngineBrick(EngineBase):
                 value = f.value
 
             if f.type == FilterType.USER:
-                q &= Q(author__iregex=value)
+                q &= SQ(author__contains=value)
 
-        # Search part names
-        q2 = Q()
-        q2 |= Q(part_name__istartswith=self.keyword)
+        qs_author = qs.filter(q)
 
-        qs = Biobrick.objects.filter(q & q2).all()[:5]
+        # Filter by part names
+        qs_names = qs.filter(name__contains=self.keyword)[:5]
 
         # Search descriptions
-        # q = Q()
-        # for k in split_punct(self.keyword):
-        #     if k.lower() not in ['bba', 'sp']:
-        #         q |= Q(description__icontains=k)
-        # qs2 = Biobrick.objects.filter(q)[:15]
+        qs_desc = qs.filter(text__contains=self.keyword)[:25]
 
         # Merge and Uniquify
-        results = list(qs)
-        # for brick in qs2:
-        #     if brick not in results:
-        #         results.append(brick)
+        results = list(qs_names)
+        for result in qs_desc:
+            if result not in results:
+                results.append(result)
 
         return BiobrickSerializer(results, many=True).data
 
