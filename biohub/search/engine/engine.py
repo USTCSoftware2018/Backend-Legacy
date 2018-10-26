@@ -204,7 +204,7 @@ class EngineBrick(EngineBase):
             if f.type == FilterType.USER:
                 q &= SQ(author__contains=value)
 
-        qs_author = qs.filter(q)
+        qs = qs.filter(q)
 
         # Filter by part names
         qs_names = qs.filter(name__contains=self.keyword)[:5]
