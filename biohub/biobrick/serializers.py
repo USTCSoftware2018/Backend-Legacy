@@ -84,14 +84,15 @@ class BiobrickSerializer(ModelSerializer):
             if obj.highlighted is not None and len(obj.highlighted) > 0:
                 ret['desc'] = obj.highlighted[0]
 
-            querydict = self.context['request'].query_params
-            if 'highlight' in querydict:
-                highlighter = SimpleHighlighter(
-                    querydict.get('q', ''),
-                    html_tag='div',
-                    css_class='highlight'
-                )
-                ret['part_name'] = highlighter.highlight(ret['part_name'])
+            if 'request' in self.context:
+                querydict = self.context['request'].query_params
+                if 'highlight' in querydict:
+                    highlighter = SimpleHighlighter(
+                        querydict.get('q', ''),
+                        html_tag='div',
+                        css_class='highlight'
+                    )
+                    ret['part_name'] = highlighter.highlight(ret['part_name'])
         else:
             ret = super_func(obj)
 
