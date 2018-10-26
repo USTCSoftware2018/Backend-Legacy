@@ -192,6 +192,7 @@ class EngineBrick(EngineBase):
         from biohub.biobrick.serializers import BiobrickSerializer
 
         qs = SearchQuerySet()
+        ordering = ['-weight', '-creation_date']
 
         # Filter by author
         q = SQ()
@@ -204,13 +205,13 @@ class EngineBrick(EngineBase):
             if f.type == FilterType.USER:
                 q &= SQ(author__contains=value)
 
-        qs_author = qs.filter(q)
+        qs = qs.filter(q)
 
         # Filter by part names
-        qs_names = qs.filter(name__contains=self.keyword)[:5]
+        qs_names = qs.filter(name__contains=self.keyword).order_by(*ordering)[:5]
 
         # Search descriptions
-        qs_desc = qs.filter(text__contains=self.keyword)[:25]
+        qs_desc = qs.filter(text__contains=self.keyword).order_by(*ordering)[:25]
 
         # Merge and Uniquify
         results = list(qs_names)
